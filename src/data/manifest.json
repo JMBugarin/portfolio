@@ -1,0 +1,312 @@
+[
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-01-map.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-02-search.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-03-room.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-04-schedule.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-05-day.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-06-class-on-map.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, iOS app",
+    "format": "1206x2622",
+    "capture_method": "simctl screenshot during the walkthrough. Simulator, invented schedule.",
+    "kind": "image",
+    "file": "media/classmap/ios-07-week.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "1920x1080",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-01-home.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "1920x1080",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-02-typo-search.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "1920x1080",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-03-place.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "1920x1080",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-04-route.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "1920x1080",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-05-dining.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "1920x1080",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-06-science-hill.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "3200x1800",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-07-route-dark.jpg",
+    "portrait": false
+  },
+  {
+    "project": "classmap",
+    "purpose": "Screenshot, web map",
+    "format": "780x1688",
+    "capture_method": "Chrome screenshot during the web capture script",
+    "kind": "image",
+    "file": "media/classmap/web-08-mobile-place.jpg",
+    "portrait": true
+  },
+  {
+    "project": "classmap",
+    "purpose": "Demo recording, iOS app",
+    "format": "1080x1920, 49 s",
+    "capture_method": "Real app in the iOS Simulator (iPhone 17), driven by sources/capture/classmap_ios_walkthrough.dart, recorded with simctl. Invented schedule.",
+    "kind": "video",
+    "file": "media/classmap/classmap-ios.mp4"
+  },
+  {
+    "project": "classmap",
+    "purpose": "Demo recording, web map",
+    "format": "1920x1080, 29 s",
+    "capture_method": "Built site served locally, driven and recorded in headless Chrome (sources/capture/classmap_web.mjs)",
+    "kind": "video",
+    "file": "media/classmap/classmap-web.mp4"
+  },
+  {
+    "project": "pacer",
+    "purpose": "Screenshot",
+    "format": "1920x1080",
+    "capture_method": "Last frame of the vhs recording: the real results table",
+    "kind": "image",
+    "file": "media/pacer/demo-table.jpg",
+    "portrait": false
+  },
+  {
+    "project": "pacer",
+    "purpose": "Results figure",
+    "format": "2080x576",
+    "capture_method": "Copied from the pacer repo (docs/images), generated by its own `make figures` from committed results. Simulation.",
+    "kind": "image",
+    "file": "media/pacer/fig-hit-vs-capacity.jpg",
+    "portrait": false
+  },
+  {
+    "project": "pacer",
+    "purpose": "Results figure",
+    "format": "1280x672",
+    "capture_method": "Copied from the pacer repo (docs/images), generated by its own `make figures` from committed results. Simulation.",
+    "kind": "image",
+    "file": "media/pacer/fig-oracle-ladder-chat.jpg",
+    "portrait": false
+  },
+  {
+    "project": "pacer",
+    "purpose": "Results figure",
+    "format": "1040x448",
+    "capture_method": "Copied from the pacer repo (docs/images), generated by its own `make figures` from committed results. Simulation.",
+    "kind": "image",
+    "file": "media/pacer/fig-reuse-model-auc.jpg",
+    "portrait": false
+  },
+  {
+    "project": "pacer",
+    "purpose": "Demo recording",
+    "format": "1920x1080, 38 s",
+    "capture_method": "Real `make demo` run on the public Qwen chat trace, recorded headlessly with vhs (sources/capture/pacer_demo.tape)",
+    "kind": "video",
+    "file": "media/pacer/pacer-demo.mp4"
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot",
+    "format": "2560x1440",
+    "capture_method": "Frame from the raw demo recording (same capture as the video)",
+    "kind": "image",
+    "file": "media/tilelens/demo-01.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot",
+    "format": "2560x1440",
+    "capture_method": "Frame from the raw demo recording (same capture as the video)",
+    "kind": "image",
+    "file": "media/tilelens/demo-02.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot",
+    "format": "2560x1440",
+    "capture_method": "Frame from the raw demo recording (same capture as the video)",
+    "kind": "image",
+    "file": "media/tilelens/demo-03.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot",
+    "format": "2560x1440",
+    "capture_method": "Frame from the raw demo recording (same capture as the video)",
+    "kind": "image",
+    "file": "media/tilelens/demo-04.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot",
+    "format": "2560x1440",
+    "capture_method": "Frame from the raw demo recording (same capture as the video)",
+    "kind": "image",
+    "file": "media/tilelens/demo-05.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot, real game",
+    "format": "1678x1053",
+    "capture_method": "Copied from the tilelens repo (docs/images): the author's own capture over Discord Letter League, player name already blurred",
+    "kind": "image",
+    "file": "media/tilelens/discord-letter-league-real.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot, real game",
+    "format": "2720x1720",
+    "capture_method": "Frame from the live Discord recording, same crop and blur",
+    "kind": "image",
+    "file": "media/tilelens/discord-live-01.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot, real game",
+    "format": "2720x1720",
+    "capture_method": "Frame from the live Discord recording, same crop and blur",
+    "kind": "image",
+    "file": "media/tilelens/discord-live-02.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot, real game",
+    "format": "2720x1720",
+    "capture_method": "Frame from the live Discord recording, same crop and blur",
+    "kind": "image",
+    "file": "media/tilelens/discord-live-03.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot, real game",
+    "format": "2720x1720",
+    "capture_method": "Frame from the live Discord recording, same crop and blur",
+    "kind": "image",
+    "file": "media/tilelens/discord-live-04.jpg",
+    "portrait": false
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Screenshot, real game",
+    "format": "588x684",
+    "capture_method": "Copied from the tilelens repo (docs/images): the author's own capture over Discord Letter League, player name already blurred",
+    "kind": "image",
+    "file": "media/tilelens/discord-panel-real.jpg",
+    "portrait": true
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Demo recording",
+    "format": "1920x1080, 58 s",
+    "capture_method": "Real app in demo mode (built-in synthetic game), screen region recorded with ffmpeg avfoundation; staged by sources/capture/tilelens_demo.py",
+    "kind": "video",
+    "file": "media/tilelens/tilelens-demo.mp4"
+  },
+  {
+    "project": "tilelens",
+    "purpose": "Demo recording, real game (hero)",
+    "format": "1920x1080, 50 s",
+    "capture_method": "Live Letter League session in Discord on 2026-11-11 with TileLens running from the local feat/liquid-glass checkout (unmerged UI); full display recorded with ffmpeg avfoundation, cropped to the game, player card blurred",
+    "kind": "video",
+    "file": "media/tilelens/tilelens-discord-live.mp4"
+  }
+]
