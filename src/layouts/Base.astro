@@ -1,0 +1,75 @@
+---
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
+import '../styles/global.css'
+import { email, links, url, verifiedOn, projects, assets } from '../lib/data'
+
+interface Props { title: string; description: string; current?: 'work' | 'about' }
+const { title, description, current } = Astro.props
+const home = Astro.url.pathname === url('')
+const anchor = (id: string) => (home ? `#${id}` : `${url('')}#${id}`)
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232340e0'/%3E%3Ctext x='15' y='22' font-family='ui-monospace,Menlo,monospace' font-weight='600' font-size='16' text-anchor='middle' fill='white'%3EJ%3C/text%3E%3C/svg%3E" />
+    <script is:inline>
+      (() => {
+        let t = null
+        try { t = localStorage.getItem('theme') } catch {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = t
+      })()
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href={url('')} aria-label="Joshua Bugarin, home">
+          <span class="mark" aria-hidden="true">J<i>8</i></span>
+          <span>Joshua Bugarin</span>
+        </a>
+        <nav aria-label="Main">
+          <a href={anchor('work')} aria-current={current === 'work' ? 'page' : undefined}>Work</a>
+          <a href={anchor('about')}>About</a>
+          <a href={anchor('contact')}>Contact</a>
+          <a class="keep" href={url(links.resume)}>Resume</a>
+          <button class="theme" type="button" id="theme" aria-label="Switch between light and dark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+          </button>
+        </nav>
+      </div>
+      <span class="ruler" aria-hidden="true"></span>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>© 2026 Joshua Bugarin · Built with Astro · {projects.length} projects, {assets.filter((a) => a.kind === 'image').length} captures, 0 trackers</span>
+        <span>
+          <a href={links.github}>GitHub</a> · <a href={links.linkedin}>LinkedIn</a> · <a href={`mailto:${email}`}>Email</a> · Facts checked {verifiedOn}
+        </span>
+      </div>
+    </footer>
+    <script>
+      const root = document.documentElement
+      document.getElementById('theme')?.addEventListener('click', () => {
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
+        root.dataset.theme = next
+        try { localStorage.setItem('theme', next) } catch {}
+      })
+      const ruler = () => {
+        const max = root.scrollHeight - innerHeight
+        root.style.setProperty('--read', max > 0 ? String(Math.min(1, scrollY / max)) : '0')
+      }
+      addEventListener('scroll', ruler, { passive: true })
+      addEventListener('resize', ruler)
+      ruler()
+    </script>
+  </body>
+</html>

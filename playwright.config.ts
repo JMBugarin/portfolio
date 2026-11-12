@@ -11,7 +11,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run build && npm run preview',
+    command: 'npm run build && npx astro preview --port 4321 --ignore-lock',
     url: 'http://localhost:4321',
     reuseExistingServer: false,
     timeout: 120_000,

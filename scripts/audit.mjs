@@ -13,10 +13,10 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
     await context.addInitScript(t => localStorage.setItem('theme', t), theme)
     const page = await context.newPage()
-    for (const route of ['/', '/projects/pacer', '/projects/tilelens', '/projects/classmap', '/projects/ethocal']) {
-      await page.goto(`${base}/#${route}`)
+    for (const route of ['/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/']) {
+      await page.goto(`${base}${route}`)
       await page.locator('h1').waitFor()
-      await page.locator('text=Loading the interactive view…').waitFor({ state: 'hidden' })
+      await page.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 600) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)) } })
       await page.evaluate(() => document.fonts.ready)
       await page.addScriptTag({ content: axe.source })
       const audit = await page.evaluate(async () => await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a','wcag2aa','wcag21aa','best-practice'] } }))

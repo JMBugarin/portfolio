@@ -1,0 +1,106 @@
+---
+import NameTiles from '../components/NameTiles.astro'
+import ProjectCard from '../components/ProjectCard.astro'
+import Base from '../layouts/Base.astro'
+import { email, ethocal, links, projects, url } from '../lib/data'
+
+const toolbox = {
+  Languages: ['Python', 'Rust', 'C', 'C++', 'Dart', 'TypeScript', 'JavaScript'],
+  'Frameworks & libraries': ['Flutter', 'React', 'PySide6', 'OpenCV', 'NumPy', 'LightGBM', 'MLX', 'PyO3', 'MapLibre'],
+  Tools: ['Git', 'GitHub Actions', 'uv', 'Cargo', 'pytest', 'Playwright', 'Xcode', 'Figma'],
+}
+---
+<Base title="Joshua Bugarin · Software and AI/ML engineering" description="Joshua Bugarin builds small tools and measures them: Pacer, TileLens and Classmap." current="work">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Software engineering · AI / ML</p>
+      <NameTiles />
+      <h1>Small tools. <em>Serious engineering.</em></h1>
+      <p class="lede">I'm Joshua Bugarin. I build systems that make better decisions, from what an LLM cache keeps to where your next class actually is. Then I check the work.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#work">See the work</a>
+        <a class="btn" href={url(links.resume)}>Resume (PDF)</a>
+      </div>
+      <dl class="facts">
+        <div><dt>Studying</dt><dd>Computer Science</dd></div>
+        <div><dt>Minor</dt><dd>Computer Engineering</dd></div>
+        <div><dt>At</dt><dd>UC Santa Cruz</dd></div>
+        <div><dt>Graduating</dt><dd>June 2028</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="block" id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Selected work</p>
+        <h2>Three projects, each with its numbers and its limits.</h2>
+      </div>
+      <div class="work-grid">{projects.map((p) => <ProjectCard project={p} />)}</div>
+      <div class="also card">
+        <p><b>{ethocal.name}</b> <span class="muted">· team project. {ethocal.note} {ethocal.contribution?.replace(/^Built/, 'I built')}</span></p>
+        <a class="link" href={url('work/ethocal/')}>Details</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="about">
+    <div class="wrap">
+      <div class="about-grid">
+        <div>
+          <div class="section-head">
+            <p class="eyebrow">About</p>
+            <h2>Curious enough to build it. Skeptical enough to test it.</h2>
+          </div>
+          <p class="prose">I'm a computer science student at UC Santa Cruz with a computer engineering minor. I work across systems, machine learning, computer vision and mobile software.</p>
+          <p class="prose">I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines. A room name that has to resolve to a real door.</p>
+          <ol class="timeline">
+            <li><time>Expected Jun 2028</time><span><b>UC Santa Cruz.</b> B.S. Computer Science, Computer Engineering minor. Sabatte Scholarship.</span></li>
+            <li><time>May 2026</time><span><b>DesignVerse Hackathon, UC Riverside.</b> Won with a team of five; the concept became Ethocal.</span></li>
+          </ol>
+        </div>
+        <ol class="principles">
+          <li><b>Measure first, then brag a little.</b><span>Every number on this site comes from a benchmark or test in the repo, and says what it was measured on.</span></li>
+          <li><b>Write the test that can embarrass me.</b><span>A brute-force solver to check the fast one. A reference simulator to check the Rust one.</span></li>
+          <li><b>Publish the misses.</b><span>Limits and failed criteria sit beside the results, not in a drawer.</span></li>
+        </ol>
+      </div>
+      <div class="toolbox">
+        {Object.entries(toolbox).map(([name, items]) => (
+          <div class="card"><h3>{name}</h3><ul class="tags">{items.map((i) => <li>{i}</li>)}</ul></div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="block contact" id="contact">
+    <div class="wrap">
+      <div class="card">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2>Have a good problem?</h2>
+        </div>
+        <div>
+          <a class="email" href={`mailto:${email}`}>{email}</a>
+          <div class="row">
+            <button class="btn" type="button" id="copy" data-email={email}>Copy email</button>
+            <a class="btn" href={links.github}>GitHub</a>
+            <a class="btn" href={links.linkedin}>LinkedIn</a>
+          </div>
+          <p role="status" id="copied"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+<script>
+  const btn = document.getElementById('copy'), out = document.getElementById('copied')
+  btn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.email ?? '')
+      out!.textContent = 'Email copied.'
+    } catch {
+      out!.textContent = 'Copy unavailable. Select the address above.'
+    }
+  })
+</script>

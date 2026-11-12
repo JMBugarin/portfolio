@@ -1,0 +1,37 @@
+---
+import cells from '../data/pacer-results.json'
+import { headline, story, url, type Project } from '../lib/data'
+
+interface Props { project: Project }
+const { project: p } = Astro.props
+const h = headline[p.id]
+const chat = cells.find((c) => c.trace === 'To-C chat' && c.cache === '2%')!
+const bars = [['LRU', chat.lru, ''], ['Best heuristic', chat.best, ''], ['Pacer', chat.pacer, 'hi'], ['Foresight', chat.belady, 'ref']] as const
+---
+<article class="project card">
+  <div class="art">
+    {p.id === 'pacer' && (
+      <div class="mini-bars" role="img" aria-label={`Cache hit ratio on the chat trace at 2% cache: ${bars.map(([n, v]) => `${n} ${v}%`).join(', ')}`}>
+        {bars.map(([n, v, c]) => <div class={c}><span>{n}</span><i style={`width:${(v / chat.belady) * 100}%`}></i><span>{v.toFixed(1)}%</span></div>)}
+        <p>Hit ratio, chat trace, 2% cache. Simulated.</p>
+      </div>
+    )}
+    {p.id === 'tilelens' && <img src={url('media/tilelens/discord-live-02-960.webp')} width="960" height="607" alt="TileLens drawing a suggested play as ghost tiles over a live Letter League game" loading="lazy" />}
+    {p.id === 'classmap' && (
+      <div class="phones">
+        <img src={url('media/classmap/ios-03-room-600.webp')} width="600" height="1304" alt="Classmap showing a classroom on the campus map" loading="lazy" />
+        <img src={url('media/classmap/ios-05-day-600.webp')} width="600" height="1304" alt="Classmap listing a day's classes" loading="lazy" />
+      </div>
+    )}
+  </div>
+  <div class="body">
+    <span class="cat">{p.category}</span>
+    <h3><a href={url(`work/${p.id}/`)}>{p.name}</a></h3>
+    <p class="muted">{story(p.id)?.summary ?? p.one_liner}</p>
+    {h && <p class="stat"><b>{h.value}<small>{h.unit}</small></b><span>{h.label}</span></p>}
+    <div class="foot">
+      <ul class="tags">{p.stack.slice(0, 4).map((s) => <li>{s}</li>)}</ul>
+      <span class="link" aria-hidden="true">Case study</span>
+    </div>
+  </div>
+</article>

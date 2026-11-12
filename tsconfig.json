@@ -1,15 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "types": ["vite/client"]
-  },
-  "include": ["src"]
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": { "jsx": "react-jsx", "jsxImportSource": "react", "resolveJsonModule": true },
+  "include": ["src", ".astro/types.d.ts"],
+  "exclude": ["dist"]
 }
