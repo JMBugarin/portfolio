@@ -58,6 +58,8 @@ const repo = p.repo.replace('https://', '')
         {p.id === 'pacer' && <PacerExplorer client:load />}
         {p.id === 'tilelens' && <TileLensPlayer client:load />}
         {p.id === 'classmap' && <ClassmapDemo client:load />}
+        {p.id === 'pacer' && <a class="link" href={url('play/#cache')}>Make the eviction call yourself</a>}
+        {p.id === 'tilelens' && <a class="link" href={url('play/#rack')}>Search a rack of tiles yourself</a>}
       </section>
 
       {s && (

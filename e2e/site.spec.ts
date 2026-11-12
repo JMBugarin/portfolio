@@ -1,7 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const ready = (page: Page) => page.waitForFunction(() => document.querySelectorAll('astro-island').length > 0 && !document.querySelector('astro-island[client="load"][ssr]'))
-const pages = ['/', '/work/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/', '/about/']
+const woken = (page: Page, inside: string) => expect(page.locator(`astro-island[ssr]:has(${inside})`)).toHaveCount(0)
+const pages = ['/', '/work/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/', '/about/', '/play/']
 const middle = async (page: Page, selector: string) => {
   const box = (await page.locator(selector).boundingBox())!
   return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2) }
@@ -122,6 +123,42 @@ test('the name badge flips', async ({ page }) => {
   await expect(flip).toHaveAttribute('aria-pressed', 'false')
 })
 
+test('the cache toy plays a round and scores it against the simple rules', async ({ page }) => {
+  await page.goto('/play/')
+  const game = page.getByRole('region', { name: 'Be the cache' })
+  await game.scrollIntoViewIfNeeded()
+  await woken(page, '.cache')
+  await game.getByRole('button', { name: 'Start' }).click()
+  const open = game.locator('button.slot[aria-disabled="false"]')
+  await expect(async () => {
+    if (await open.count()) await open.first().click()
+    await expect(game.locator('.cache-result')).toBeVisible({ timeout: 300 })
+  }).toPass({ timeout: 40_000, intervals: [150] })
+  const hits = async (row: number) => parseFloat((await game.locator('.bar .val').nth(row).textContent())!)
+  const [you, first, recent, best] = [await hits(0), await hits(1), await hits(2), await hits(3)]
+  expect(best).toBeGreaterThanOrEqual(Math.max(you, first, recent))
+  expect(you).toBeGreaterThan(0)
+  await expect(game.locator('.verdict')).toContainText('LRU')
+  await expect(game.locator('.strip li')).toHaveCount(32)
+})
+
+test('the rack toy finds the best words for the tiles it is given', async ({ page }) => {
+  await page.goto('/play/')
+  const rack = page.getByRole('region', { name: 'Find the best play' })
+  await rack.scrollIntoViewIfNeeded()
+  await woken(page, '.solver')
+  await expect(rack.locator('.plays li').first()).toContainText('CHECK')
+  await rack.getByLabel('Or type two to seven letters').fill('mapquiz')
+  await rack.getByRole('button', { name: 'Search' }).click()
+  await expect(rack.locator('.plays li').first()).toContainText('QUIZ')
+  await expect(rack.locator('.plays li').first()).toContainText('22 pts')
+  await rack.getByRole('button', { name: /ZAP/ }).click()
+  await expect(rack.locator('.tile.played')).toHaveText(['Z10', 'A1', 'P3'])
+  await expect(rack.locator('.note')).toContainText(/Searched 1,796 words in \d+\.\d{3} ms/)
+  await rack.getByRole('button', { name: 'Deal a rack' }).click()
+  await expect(rack.locator('.rack-tiles .tile')).toHaveCount(7)
+})
+
 test('copy email reports what happened', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/about/')
@@ -236,10 +273,13 @@ test('an unknown address gets the 404 page', async ({ page }) => {
 
 test.describe('phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
-  test('nothing overflows sideways on any page', async ({ page }) => {
-    for (const path of pages) {
-      await page.goto(path)
-      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), path).toBeLessThanOrEqual(0)
+  test('nothing overflows sideways on any page, down to a narrow phone', async ({ page }) => {
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 })
+      for (const path of pages) {
+        await page.goto(path)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${path} at ${width}px`).toBeLessThanOrEqual(0)
+      }
     }
   })
   test('the desk stacks, and the stamp still works by tap', async ({ page }) => {

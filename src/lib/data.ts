@@ -33,6 +33,7 @@ export const pages = [
   { id: 'home', label: 'Home', path: '' },
   { id: 'work', label: 'Work', path: 'work/' },
   { id: 'about', label: 'About', path: 'about/' },
+  { id: 'play', label: 'Play', path: 'play/' },
 ] as const
 export type PageId = (typeof pages)[number]['id']
 export const pageOf = (id: PageId) => `${pages.findIndex((p) => p.id === id) + 1} of ${pages.length}`

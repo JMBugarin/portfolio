@@ -107,5 +107,9 @@ if (!mediaOnly) {
   const demo = join(root, 'public/demos/classmap-map')
   if (dist) { rmSync(demo, { recursive: true, force: true }); cpSync(dist, demo, { recursive: true }) }
   console.log(`Map demo ${dist ? 'copied' : 'not found (kept as is)'}`)
+
+  // The demo word list from the TileLens repo, for the rack toy on the play page.
+  const wordList = [join(showcase, '_work/tilelens/profiles/demo_words.txt'), resolve(root, '../tilelens/profiles/demo_words.txt')].find(existsSync)
+  if (wordList) cpSync(wordList, join(data, 'demo-words.txt'))
 }
 console.log(`${assets.length} verified assets, ${Object.keys(variants).length} image aliases, WebP encoder: ${encoder}${mediaOnly ? '; facts and map unchanged' : ''}`)

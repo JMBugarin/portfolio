@@ -13,7 +13,7 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' })
     await context.addInitScript(t => localStorage.setItem('theme', t), theme)
     const page = await context.newPage()
-    for (const route of ['/', '/work/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/', '/about/']) {
+    for (const route of ['/', '/work/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/', '/about/', '/play/']) {
       await page.goto(`${base}${route}`)
       await page.locator('h1').waitFor()
       await page.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 600) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)) } })
