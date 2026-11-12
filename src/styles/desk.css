@@ -69,7 +69,7 @@
 .sheet-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 16px; margin: 22px 22px 0 58px; padding: 11px 0 15px; border-top: 1.5px dashed var(--line-strong); }
 .ps { font-size: 22px; color: var(--red); rotate: -1.2deg; }
 html:not(.js) .ps { display: none; }
-.contact { display: flex; gap: 16px; font-size: 13.5px; }
+.reach { display: flex; gap: 16px; font-size: 13.5px; }
 .seal { position: absolute; top: 14px; right: 14px; width: clamp(86px, 17.5cqw, 114px); color: var(--red); rotate: 11deg; border-radius: 50%; filter: url(#ink); transition: rotate .3s var(--pop), scale .3s var(--pop); }
 .seal:hover, .seal:focus-visible { rotate: 0deg; scale: 1.06; }
 .seal svg { width: 100%; overflow: visible; }

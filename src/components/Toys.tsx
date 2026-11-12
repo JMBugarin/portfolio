@@ -152,7 +152,7 @@ export function CacheGame() {
         </ol>
       </div>
 
-      <p className={g.waiting ? 'cache-status ask' : 'cache-status'}>{status}{g.running && !done && <span className="muted"> Hits so far: {hits} of {g.at}.</span>}</p>
+      <p className={g.waiting ? 'cache-status asking' : 'cache-status'}>{status}{g.running && !done && <span className="muted"> Hits so far: {hits} of {g.at}.</span>}</p>
       <p className="sr-only" role="status">{g.waiting || done || !g.running ? status : ''}</p>
       <label className="peek">
         <input type="checkbox" checked={peek} onChange={(e) => { setPeek(e.target.checked); if (e.target.checked) setG((r) => ({ ...r, peeked: r.running || r.peeked })) }} />
