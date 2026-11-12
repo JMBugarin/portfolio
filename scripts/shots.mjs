@@ -13,7 +13,8 @@ const scroll = async (page) => {
 }
 for (const [name, path, w, h, scheme] of [
   ['home-light', '/', 1360, 900, 'light'], ['home-dark', '/', 1360, 900, 'dark'], ['home-phone', '/', 390, 844, 'light'],
-  ['pacer-light', '/work/pacer/', 1360, 900, 'light'], ['tilelens-dark', '/work/tilelens/', 1360, 900, 'dark'], ['classmap-phone', '/work/classmap/', 390, 844, 'light'],
+  ['work-light', '/work/', 1360, 900, 'light'], ['pacer-light', '/work/pacer/', 1360, 900, 'light'], ['tilelens-dark', '/work/tilelens/', 1360, 900, 'dark'],
+  ['classmap-phone', '/work/classmap/', 390, 844, 'light'], ['about-light', '/about/', 1360, 900, 'light'], ['play-dark', '/play/', 1360, 900, 'dark'],
 ]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: w < 500 ? 2 : 1, colorScheme: scheme, reducedMotion: 'reduce' })
   const page = await ctx.newPage()
