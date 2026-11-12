@@ -3,7 +3,7 @@ const desk = document.querySelector<HTMLElement>('[data-desk]')
 const mat = desk?.querySelector<HTMLElement>('.mat')
 
 if (desk && mat) {
-  const wide = matchMedia('(min-width: 960px) and (min-height: 620px)')
+  const wide = matchMedia('(min-width: 960px) and (min-height: 700px), (min-width: 1200px) and (min-height: 600px)')
   const still = matchMedia('(prefers-reduced-motion: reduce)')
   const items = [...desk.querySelectorAll<HTMLElement>('[data-drag]')]
   const papers = [...desk.querySelectorAll<HTMLElement>('[data-paper]')]
@@ -141,7 +141,7 @@ if (desk && mat) {
     stamper.classList.add('press', 'used')
     // Pressed rather than dropped: on the desk it marks the sheet, in the stack it marks whatever is beside it.
     const box = (wide.matches && sheet ? sheet : stamper).getBoundingClientRect()
-    if (wide.matches && sheet) stampAt(box.left + box.width * (0.72 + Math.random() * 0.14), box.top + box.height * (0.33 + Math.random() * 0.07), stamper)
+    if (wide.matches && sheet) stampAt(box.left + box.width * (0.72 + Math.random() * 0.16), box.top + box.height * (0.47 + Math.random() * 0.03), stamper)
     else stampAt(box.left + box.width / 2 + Math.random() * 120 - 60, box.top - 40 - Math.random() * 40, stamper)
   })
 

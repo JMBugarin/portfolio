@@ -10,6 +10,7 @@ if (cord) {
     const apply = () => {
       root.dataset.theme = next
       try { localStorage.setItem('theme', next) } catch {}
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0d1210' : '#f4f0e6')
       sync()
     }
     if (still.matches || !document.startViewTransition) return apply()
