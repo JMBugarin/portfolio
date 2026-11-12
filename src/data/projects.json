@@ -228,12 +228,12 @@
     ],
     "links": {
       "github": "https://github.com/JMBugarin",
-      "linkedin": "https://linkedin.com/in/Joshua-bugarin"
+      "linkedin": "https://linkedin.com/in/Joshua-bugarin",
+      "email": "mailto:jbugarin85424@gmail.com",
+      "resume": "resume/Joshua-Bugarin-Resume.pdf"
     },
     "not_published": [
-      "portfolio URL (not live)",
-      "resume (no public link)",
-      "email (kept off the public profile)"
+      "portfolio URL (not live)"
     ]
   }
 }

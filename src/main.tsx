@@ -1,15 +1,11 @@
-import '@fontsource-variable/newsreader/standard.css'
-import '@fontsource-variable/newsreader/standard-italic.css'
-import '@fontsource/ibm-plex-mono/400.css'
-import '@fontsource/ibm-plex-mono/500.css'
-import '@fontsource/ibm-plex-mono/600.css'
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App'
-import './styles.css'
-
-createRoot(document.getElementById('root')!).render(
+import "./fonts.css";
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./styles.css";
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
   </StrictMode>,
-)
+);

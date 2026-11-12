@@ -1,0 +1,146 @@
+{
+  "pacer": {
+    "headline": "What should an LLM cache forget?",
+    "summary": "I built a learned cache policy, then made it compete with tuned heuristics on held-out traffic. The win is real. So are the places it disappears.",
+    "problem": "LLM servers can reuse the work behind a repeated prompt prefix. When the cache fills, choosing the wrong block to discard means doing that work again. I wanted to test whether predicting reuse could improve on simple eviction rules without making the eviction path expensive.",
+    "contribution": "This is my solo research project. I built the Rust simulator and its eviction policies, a Python reference implementation, the LightGBM training and evaluation pipeline, and the MLX replay that connects the same Rust controller to a real KV pool through PyO3.",
+    "architecture": [
+      {
+        "title": "Replay real traffic",
+        "body": "Four public Alibaba Qwen traces supply chat, API, coding and reasoning traffic. The event-driven simulator keeps active requests' blocks pinned and evicts only unused leaves, preserving valid prompt prefixes."
+      },
+      {
+        "title": "Learn a useful question",
+        "body": "A small LightGBM model estimates whether a block will be reused soon, given how long it has already been idle. Training examples do not depend on a particular cache size. Each workload gets its own model."
+      },
+      {
+        "title": "Keep the decision cheap",
+        "body": "The fixed policy samples 32 evictable blocks and removes the one least likely to return. It follows matching parent history and reuses one scored sample for up to four evictions in a burst. The model runs in Rust."
+      },
+      {
+        "title": "Check two kinds of reality",
+        "body": "The Python reference checks the Rust simulator's behavior. Held-out traces test policy quality. A separate laptop replay uses a real MLX KV pool to check whether a better simulated hit ratio produces a latency benefit."
+      }
+    ],
+    "tradeoffs": [
+      {
+        "title": "A difficult baseline",
+        "choice": "I tune baseline settings on validation data, then compare with the best heuristic for each test cell, selected with hindsight.",
+        "cost": "It gives the comparison an advantage over Pacer, but prevents a weak default setting from making the result look impressive."
+      },
+      {
+        "title": "Workload-specific learning",
+        "choice": "I train on minutes 0–45, choose settings on minutes 45–60 and report the second hour. Every additional look at the test hour is logged.",
+        "cost": "This is one temporal split per trace. Models do not reliably transfer between workloads, so the result is narrower than a universal cache policy."
+      },
+      {
+        "title": "Hits are not all equally valuable",
+        "choice": "The main policy predicts reuse. I also tested scoring candidates by expected saved compute.",
+        "cost": "Improving block hit ratio does not guarantee the most compute saved: deep prompt blocks cost more to rebuild. On chat at 2–10% cache, the main policy trails ATC'25 in compute saved."
+      }
+    ],
+    "takeaway": "The interesting result is not that ML wins everywhere. It is that a small model improves 13 of 16 measured cells, while the remaining headroom exposes what the available metadata cannot predict. The separate laptop replay showed only a 1.2% mean time-to-first-token improvement over LRU.",
+    "sourceLinks": [
+      { "label": "Results and confidence intervals", "url": "https://github.com/JMBugarin/pacer/blob/9775802/docs/results.md" },
+      { "label": "Success criteria, including misses", "url": "https://github.com/JMBugarin/pacer/blob/9775802/docs/criteria.md" },
+      { "label": "Model and evaluation method", "url": "https://github.com/JMBugarin/pacer/blob/9775802/docs/method.md" },
+      { "label": "Simulator semantics", "url": "https://github.com/JMBugarin/pacer/blob/9775802/docs/simulator.md" }
+    ]
+  },
+  "tilelens": {
+    "headline": "Pixels in. Playable words out.",
+    "summary": "I built a local vision-and-search tool that reads a game from the screen and draws its suggestions back over it. The hard part is knowing when not to trust the pixels.",
+    "problem": "A useful overlay has to read letters, point values and board geometry while the game is moving. One uncertain tile can corrupt an otherwise exact search. I wanted fast suggestions that stay attached to the actual on-screen position.",
+    "contribution": "I built the complete system: screen capture and change detection, board alignment, letter and value recognition, the settle step, the DAWG move generator, the PySide6 panel and overlay, a synthetic game for testing, and the benchmarks.",
+    "architecture": [
+      {
+        "title": "Read only what changed",
+        "body": "Capture runs at about 10 Hz. Unchanged frames skip recognition. Board colors locate the grid, and a movement immediately clears the preview so a suggestion cannot drift away from its board."
+      },
+      {
+        "title": "Make uncertainty visible",
+        "body": "A position must agree across three frames. Remembered tiles and word-list constraints help settle unclear letters. Unresolved squares become walls for search, and the panel exposes possible corrections."
+      },
+      {
+        "title": "Search independently",
+        "body": "A directed word graph searches legal placements in a separate process and keeps the top three by this turn's score. An independent brute-force solver checks the fast implementation on seeded positions."
+      },
+      {
+        "title": "Draw without interfering",
+        "body": "A click-through overlay draws ghost tiles and never places them. Its own windows are excluded from capture. Search results are accepted only while the board still matches the position that produced them."
+      }
+    ],
+    "tradeoffs": [
+      {
+        "title": "Correctness before coverage",
+        "choice": "I flag unresolved tiles and let search work around them instead of silently choosing a letter.",
+        "cost": "A valid play can be missed until the uncertainty is resolved. The word list can also disagree with the game's dictionary."
+      },
+      {
+        "title": "One turn, done well",
+        "choice": "The search maximizes the current turn's score and explicitly labels an interrupted search as best found so far.",
+        "cost": "It does not model opponents, future turns or the strategic value of keeping particular rack tiles."
+      },
+      {
+        "title": "A local native overlay",
+        "choice": "Screen frames stay in memory, with no cloud model or runtime network requests.",
+        "cost": "Capture and window behavior were tested on one Apple-silicon Mac. Other platforms and real-game conditions have much less coverage."
+      }
+    ],
+    "takeaway": "The 2.2 ms median measures move search on mid-game 13×13 boards, not the entire screen-to-overlay loop. The more important engineering result is that stale or uncertain input does not quietly become a confident suggestion.",
+    "sourceLinks": [
+      { "label": "Pipeline and measured results", "url": "https://github.com/JMBugarin/tilelens/blob/5b157ca/README.md" },
+      { "label": "Benchmark methodology", "url": "https://github.com/JMBugarin/tilelens/blob/5b157ca/docs/performance.md" },
+      { "label": "Live loop and stale-result handling", "url": "https://github.com/JMBugarin/tilelens/blob/5b157ca/docs/live-loop.md" },
+      { "label": "Known limitations", "url": "https://github.com/JMBugarin/tilelens/blob/5b157ca/docs/limits.md" }
+    ]
+  },
+  "classmap": {
+    "headline": "Your schedule knows the room. Now you do too.",
+    "summary": "I built a campus app that turns a class schedule into places you can find, plus a separate web map with walking routes. Room names should not require local folklore.",
+    "problem": "A schedule can say “Baskin Engr 152” without explaining where that room is. General map apps often stop at a building name. I wanted one place to import a schedule, see today's classes and resolve UCSC room names, including abbreviations and typos.",
+    "contribution": "I built the Flutter app, the Dart search and schedule parsers, calendar and on-device photo import, class reminders, the Python campus-data pipeline, and the React/MapLibre web map. The web map includes Dijkstra routing with slope-aware walking-time estimates.",
+    "architecture": [
+      {
+        "title": "Ship the campus with the app",
+        "body": "Building, room, alias and calendar data are bundled assets. Search and the saved schedule work offline without an app server or account. Map imagery still comes from an external tile provider."
+      },
+      {
+        "title": "Import without a cloud round trip",
+        "body": "Schedules can be pasted, imported from an .ics file or entered by hand. On iOS, Apple's Vision framework reads a schedule image on the device before Dart code turns the text into classes for review."
+      },
+      {
+        "title": "Port behavior, not just code",
+        "body": "The Dart search, schedule reader and calendar reader are checked against recorded outputs from the original Python implementation. A separate check keeps the app's bundled data in sync with the source data."
+      },
+      {
+        "title": "Two interfaces, distinct jobs",
+        "body": "The phone app sends a destination to Apple Maps or Google Maps for walking directions. The separate web map explores campus places and computes routes over the OpenStreetMap path network in the browser."
+      }
+    ],
+    "tradeoffs": [
+      {
+        "title": "Offline data needs upkeep",
+        "choice": "I bundle room search and keep the schedule on the phone.",
+        "cost": "Campus data and term dates need explicit updates. Offline search does not promise offline map imagery."
+      },
+      {
+        "title": "Hand off navigation",
+        "choice": "The phone app passes the room destination to the system maps app instead of rebuilding turn-by-turn navigation.",
+        "cost": "It relies on another app for the walk and does not provide indoor floor guidance. Unknown rooms fall back to their building's main door."
+      },
+      {
+        "title": "Be precise about verification",
+        "choice": "I tested the app in the iOS Simulator and checked every official general-assignment classroom name.",
+        "cost": "The 87/87 result is name resolution, not a physical survey of every door. Real-device notification delivery and photo import on real photos remain unverified; the app is not in an app store."
+      }
+    ],
+    "takeaway": "The technically interesting part is the seam between messy schedule text and reliable campus data: a behavior-checked Dart port, on-device import and a useful offline core. The app and web map are separate working interfaces, with separate limits.",
+    "sourceLinks": [
+      { "label": "Verified features and remaining gaps", "url": "https://github.com/JMBugarin/ucsc-campus-router-v2/blob/62f7541/docs/status.md" },
+      { "label": "App architecture", "url": "https://github.com/JMBugarin/ucsc-campus-router-v2/blob/62f7541/README.md" },
+      { "label": "On-device photo import", "url": "https://github.com/JMBugarin/ucsc-campus-router-v2/blob/62f7541/docs/photo-import.md" },
+      { "label": "Web map and routing", "url": "https://github.com/JMBugarin/ucsc-campus-router-v2/blob/62f7541/docs/web-app.md" }
+    ]
+  }
+}
