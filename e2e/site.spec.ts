@@ -1,7 +1,19 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
-const ready = (page: import('@playwright/test').Page) => page.waitForFunction(() => document.querySelectorAll('astro-island').length > 0 && !document.querySelector('astro-island[client="load"][ssr]'))
-const pages = ['/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/']
+const ready = (page: Page) => page.waitForFunction(() => document.querySelectorAll('astro-island').length > 0 && !document.querySelector('astro-island[client="load"][ssr]'))
+const pages = ['/', '/work/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/', '/about/']
+const middle = async (page: Page, selector: string) => {
+  const box = (await page.locator(selector).boundingBox())!
+  return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2) }
+}
+const drag = async (page: Page, selector: string, dx: number, dy: number) => {
+  const { x, y } = await middle(page, selector)
+  await page.mouse.move(x, y)
+  await page.mouse.down()
+  await page.mouse.move(x + dx / 2, y + dy / 2, { steps: 5 })
+  await page.mouse.move(x + dx, y + dy, { steps: 5 })
+  await page.mouse.up()
+}
 
 test('every page loads without errors and has one h1', async ({ page }) => {
   const errors: string[] = []
@@ -15,39 +27,104 @@ test('every page loads without errors and has one h1', async ({ page }) => {
   expect(errors).toEqual([])
 })
 
-test('home lists the three projects and links to their case studies', async ({ page }) => {
+test('the home sheet leads to the work, and the work to its case studies', async ({ page }) => {
   await page.goto('/')
-  for (const name of ['Pacer', 'TileLens', 'Classmap']) await expect(page.locator('.project').getByRole('link', { name, exact: true })).toBeVisible()
+  for (const name of ['Pacer', 'TileLens', 'Classmap']) await expect(page.locator('.snap', { hasText: name })).toBeVisible()
+  await page.getByRole('link', { name: 'See the work' }).click()
+  await expect(page).toHaveURL(/\/work\/$/)
+  for (const name of ['Pacer', 'TileLens', 'Classmap', 'Ethocal']) await expect(page.locator('.project').getByRole('link', { name, exact: true })).toBeVisible()
   await page.locator('.project').getByRole('link', { name: 'TileLens', exact: true }).click()
   await expect(page).toHaveURL(/\/work\/tilelens\/$/)
   await expect(page.locator('h1')).toBeVisible()
-  await page.getByRole('link', { name: /All work/ }).click()
-  await expect(page).toHaveURL(/\/#work$/)
+  await page.getByRole('link', { name: 'All work' }).click()
+  await expect(page).toHaveURL(/\/work\/$/)
+  await page.getByRole('link', { name: 'Joshua Bugarin, home' }).click()
+  await expect(page).toHaveURL(/\/$/)
 })
 
-test('the name rack shuffles and solves', async ({ page }) => {
-  await page.goto('/')
-  const status = page.locator('#rack-status')
-  await expect(status).toContainText('JOSHUA · 16 pts')
-  await page.getByRole('button', { name: 'Shuffle the rack' }).click()
-  await expect(status).toContainText('not a word yet')
-  await page.getByRole('button', { name: 'Find the best play' }).click()
-  await expect(status).toContainText('JOSHUA · 16 pts')
+test.describe('the desk', () => {
+  test.use({ reducedMotion: 'reduce' })
+
+  test('the name rack shuffles, solves and can be rearranged by hand', async ({ page }) => {
+    await page.goto('/')
+    const status = page.locator('[data-rack-status]')
+    await expect(status).toContainText('JOSHUA · 16 pts')
+    await page.getByRole('button', { name: 'Shuffle the rack' }).click()
+    await expect(status).toContainText('not a word yet')
+    await page.getByRole('button', { name: 'Find the best play' }).click()
+    await expect(status).toContainText('JOSHUA · 16 pts')
+    await drag(page, '.name .tile >> nth=0', 80, 0)
+    await expect(status).toContainText('OSJHUA · not a word yet')
+  })
+
+  test('things can be dragged, a drag is not a click, and the desk tidies up', async ({ page }) => {
+    await page.goto('/')
+    const snap = '[data-drag="snap-tilelens"]'
+    const before = await middle(page, snap)
+    await drag(page, snap, -200, 120)
+    expect(await middle(page, snap)).toEqual({ x: before.x - 200, y: before.y + 120 })
+    await expect(page).toHaveURL(/\/$/)
+    await page.reload()
+    expect(await middle(page, snap)).toEqual({ x: before.x - 200, y: before.y + 120 })
+    await page.getByRole('button', { name: 'Tidy the desk' }).click()
+    await expect.poll(() => middle(page, snap)).toEqual(before)
+    await expect(page.getByRole('button', { name: 'Tidy the desk' })).toBeHidden()
+    await page.locator(snap).click()
+    await expect(page).toHaveURL(/\/work\/tilelens\/$/)
+  })
+
+  test('the stamp leaves a mark where it is dropped, or on the sheet when pressed', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Stamp the desk' }).click()
+    await expect(page.locator('.sheet .ink-mark')).toHaveCount(1)
+    await expect(page.locator('#desk-status')).toHaveText('Stamped: Checked.')
+    await drag(page, '.stamper svg', 0, 150)
+    await expect(page.locator('.ink-mark')).toHaveCount(2)
+    await page.getByRole('button', { name: 'Tidy the desk' }).click()
+    await expect(page.locator('.ink-mark')).toHaveCount(0)
+  })
 })
 
-test('the theme switch works and is remembered', async ({ page }) => {
+test('the lamp cord switches the theme, by press or by pull, and it is remembered', async ({ page }) => {
   await page.goto('/')
-  const before = await page.evaluate(() => document.documentElement.dataset.theme)
-  await page.getByRole('button', { name: 'Switch between light and dark' }).click()
-  const after = await page.evaluate(() => document.documentElement.dataset.theme)
-  expect(after).not.toBe(before)
+  const theme = () => page.evaluate(() => document.documentElement.dataset.theme)
+  const cord = page.getByRole('button', { name: 'Switch between light and dark' })
+  const before = await theme()
+  await cord.click()
+  await expect.poll(theme).not.toBe(before)
+  const after = await theme()
+  await expect(cord).toHaveAttribute('aria-pressed', String(after === 'dark'))
   await page.goto('/work/pacer/')
-  expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(after)
+  expect(await theme()).toBe(after)
+  await drag(page, '#theme i', 0, 60)
+  await expect.poll(theme).toBe(before)
+})
+
+test('the work filter keeps the projects built with a tool', async ({ page }) => {
+  await page.goto('/work/')
+  await page.getByRole('button', { name: /^Rust/ }).click()
+  await expect(page.locator('.project:visible')).toHaveCount(1)
+  await expect(page.locator('.project:visible')).toContainText('Pacer')
+  await expect(page.locator('#filter-status')).toHaveText('Showing 1 of 4 projects.')
+  await page.getByRole('button', { name: /^Flutter/ }).click()
+  await expect(page.locator('.project:visible')).toHaveCount(2)
+  await page.getByRole('button', { name: /^All/ }).click()
+  await expect(page.locator('.project:visible')).toHaveCount(4)
+})
+
+test('the name badge flips', async ({ page }) => {
+  await page.goto('/about/')
+  const flip = page.getByRole('button', { name: 'Flip the badge' })
+  await flip.click()
+  await expect(flip).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.badge')).toHaveClass(/flipped/)
+  await page.locator('.badge').click()
+  await expect(flip).toHaveAttribute('aria-pressed', 'false')
 })
 
 test('copy email reports what happened', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  await page.goto('/')
+  await page.goto('/about/')
   await page.getByRole('button', { name: 'Copy email' }).click()
   await expect(page.locator('#copied')).toHaveText('Email copied.')
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('@')
@@ -164,6 +241,13 @@ test.describe('phone', () => {
       await page.goto(path)
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), path).toBeLessThanOrEqual(0)
     }
+  })
+  test('the desk stacks, and the stamp still works by tap', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('.sheet')).toBeVisible()
+    await page.getByRole('button', { name: 'Stamp the desk' }).tap()
+    await expect(page.locator('.ink-mark')).toHaveCount(1)
+    await expect(page.locator('.ink-mark')).toBeInViewport()
   })
 })
 

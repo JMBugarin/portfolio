@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro'
+import { email, links, pageOf, url } from '../lib/data'
+
+const toolbox = {
+  Languages: ['Python', 'Rust', 'C', 'C++', 'Dart', 'TypeScript', 'JavaScript'],
+  'Frameworks & libraries': ['Flutter', 'React', 'PySide6', 'OpenCV', 'NumPy', 'LightGBM', 'MLX', 'PyO3', 'MapLibre'],
+  Tools: ['Git', 'GitHub Actions', 'uv', 'Cargo', 'pytest', 'Playwright', 'Xcode', 'Figma'],
+}
+---
+<Base title="About · Joshua Bugarin" description="Joshua Bugarin studies computer science at UC Santa Cruz and builds small tools he can measure." current="about">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="eyebrow">About · page {pageOf('about')}</p>
+      <h1>Curious enough to build it. Skeptical enough to test it.</h1>
+    </header>
+
+    <div class="about-grid">
+      <aside class="badge-col" aria-label="Name badge">
+        <div class="lanyard" data-badge>
+          <div class="swing">
+            <svg viewBox="0 0 232 92" aria-hidden="true">
+              <path class="strap" d="M62 0 112 70M170 0 120 70" />
+              <rect class="clip" x="103" y="64" width="26" height="30" rx="5" />
+            </svg>
+            <div class="badge">
+              <div class="badge-card">
+                <div class="face front">
+                  <p class="band"><b>HELLO</b><span>my name is</span></p>
+                  <p class="signed hand">Joshua</p>
+                  <p class="badge-foot">UC Santa Cruz · class of 2028</p>
+                </div>
+                <div class="face back">
+                  <p class="band"><b>ASK ME</b><span>about</span></p>
+                  <ul class="ask hand">
+                    <li>what an LLM cache should forget</li>
+                    <li>reading a game board off a screen</li>
+                    <li>where Baskin Engr 152 is</li>
+                  </ul>
+                  <p class="badge-foot">Then ask how I checked.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn small" type="button" data-flip aria-pressed="false">Flip the badge</button>
+        <ul class="socials">
+          <li><a class="hl" href={links.github}>GitHub</a></li>
+          <li><a class="hl" href={links.linkedin}>LinkedIn</a></li>
+          <li><a class="hl" href={url(links.resume)}>Resume (PDF)</a></li>
+        </ul>
+      </aside>
+
+      <div>
+        <p class="prose">I'm a computer science student at UC Santa Cruz with a computer engineering minor. I work across systems, machine learning, computer vision and mobile software.</p>
+        <p class="prose">I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines. A room name that has to resolve to a real door.</p>
+        <dl class="facts">
+          <div><dt class="label">Studying</dt><dd>Computer Science</dd></div>
+          <div><dt class="label">Minor</dt><dd>Computer Engineering</dd></div>
+          <div><dt class="label">At</dt><dd>UC Santa Cruz</dd></div>
+          <div><dt class="label">Graduating</dt><dd>June 2028</dd></div>
+        </dl>
+        <ol class="timeline">
+          <li><time>Expected Jun 2028</time><span><b>UC Santa Cruz.</b> B.S. Computer Science, Computer Engineering minor. Sabatte Scholarship.</span></li>
+          <li><time>May 2026</time><span><b>DesignVerse Hackathon, UC Riverside.</b> Won with a team of five; the concept became Ethocal.</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <section class="block">
+      <div class="section-head"><p class="eyebrow">How I work</p><h2>Three habits.</h2></div>
+      <ol class="principles">
+        <li class="paper" data-reveal style="--d:0"><b>Measure first, then brag a little.</b><span>Every number on this site comes from a benchmark or test in the repo, and says what it was measured on.</span></li>
+        <li class="paper" data-reveal style="--d:1"><b>Write the test that can embarrass me.</b><span>A brute-force solver to check the fast one. A reference simulator to check the Rust one.</span></li>
+        <li class="paper" data-reveal style="--d:2"><b>Publish the misses.</b><span>Limits and failed criteria sit beside the results, not in a drawer.</span></li>
+      </ol>
+    </section>
+
+    <section class="block">
+      <div class="section-head"><p class="eyebrow">Toolbox</p><h2>What is in the pencil case.</h2></div>
+      <div class="toolbox">
+        {Object.entries(toolbox).map(([name, items], i) => (
+          <div class="paper" data-reveal style={`--d:${i}`}><h3>{name}</h3><ul class="tags">{items.map((item) => <li>{item}</li>)}</ul></div>
+        ))}
+      </div>
+    </section>
+
+    <section class="block contact" id="contact">
+      <div class="mat-panel">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2>Have a good problem?</h2>
+        </div>
+        <div>
+          <a class="email" href={`mailto:${email}`}>{email}</a>
+          <div class="row">
+            <button class="btn primary" type="button" id="copy" data-copy={email} data-out="copied">Copy email</button>
+            <a class="btn" href={links.github}>GitHub</a>
+            <a class="btn" href={links.linkedin}>LinkedIn</a>
+          </div>
+          <p role="status" id="copied"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+<script>
+  import '../scripts/badge.ts'
+</script>

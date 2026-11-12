@@ -1,7 +1,9 @@
 ---
 import { ClassmapDemo, Gallery, PacerExplorer, Results, TileLensPlayer } from '../../components/Islands'
+import PacerBars from '../../components/PacerBars.astro'
+import Sticker from '../../components/Sticker.astro'
 import Base from '../../layouts/Base.astro'
-import { projects, story, url, verifiedOn, type Project } from '../../lib/data'
+import { headline, projects, story, url, verifiedOn, type Project } from '../../lib/data'
 
 export function getStaticPaths() {
   return projects.map((project) => ({ params: { id: project.id }, props: { project } }))
@@ -9,6 +11,7 @@ export function getStaticPaths() {
 interface Props { project: Project }
 const { project: p } = Astro.props
 const s = story(p.id)
+const h = headline[p.id]
 const next = projects[(projects.findIndex((x) => x.id === p.id) + 1) % projects.length]
 const repo = p.repo.replace('https://', '')
 ---
@@ -16,20 +19,42 @@ const repo = p.repo.replace('https://', '')
   <article class="case">
     <header class="case-hero">
       <div class="wrap">
-        <a class="back" href={`${url('')}#work`}>← All work</a>
+        <a class="back" href={url('work/')}>All work</a>
         <p class="eyebrow">{p.name} · {p.category}</p>
         <h1>{s?.headline ?? p.one_liner}</h1>
         <p class="lede">{s?.summary ?? p.one_liner}</p>
-        <dl class="meta">
-          <div><dt>Role</dt><dd>Solo project: design, code, tests, measurements</dd></div>
-          <div><dt>Built with</dt><dd>{p.stack.join(' · ')}</dd></div>
-          <div><dt>Code</dt><dd><a class="ext" href={p.repo}>{repo}</a> <span class="muted mono">at {p.commit}</span></dd></div>
-        </dl>
       </div>
     </header>
 
     <div class="wrap">
-      <section aria-label="Interactive">
+      <section class="glance mat-panel" aria-label="At a glance">
+        <div class="glance-card paper">
+          <h2>At a glance</h2>
+          <dl class="meta">
+            <div><dt class="label">Role</dt><dd>Solo project: design, code, tests, measurements</dd></div>
+            <div><dt class="label">Built with</dt><dd><ul class="tags">{p.stack.map((t) => <li>{t}</li>)}</ul></dd></div>
+            <div><dt class="label">Code</dt><dd>{repo} <span class="muted">at {p.commit}</span></dd></div>
+          </dl>
+          <a class="btn primary" href={p.repo}>View on GitHub</a>
+        </div>
+        <figure class="glance-photo paper" style={`--tape:${p.accent}`}>
+          <span class="tape" aria-hidden="true"></span>
+          {p.id === 'pacer' && <PacerBars />}
+          {p.id === 'tilelens' && <img src={url('media/tilelens/discord-live-02-960.webp')} width="960" height="607" alt="TileLens drawing a suggested play as ghost tiles over a live Letter League game" />}
+          {p.id === 'classmap' && (
+            <div class="phones">
+              <img src={url('media/classmap/ios-03-room-600.webp')} width="600" height="1304" alt="Classmap showing a classroom on the campus map" />
+              <img src={url('media/classmap/ios-05-day-600.webp')} width="600" height="1304" alt="Classmap listing a day's classes" />
+            </div>
+          )}
+          {p.id === 'tilelens' && <figcaption>A real game, live in Discord. Player card blurred.</figcaption>}
+          {p.id === 'classmap' && <figcaption>The app in the iOS Simulator, with an invented schedule.</figcaption>}
+          {h && <Sticker value={h.value} unit={h.unit} label={h.short} />}
+        </figure>
+        {h && <p class="glance-source"><b>{h.value} {h.unit}</b> {h.label}. {h.source}</p>}
+      </section>
+
+      <section class="try mat-panel" aria-label="Interactive">
         {p.id === 'pacer' && <PacerExplorer client:load />}
         {p.id === 'tilelens' && <TileLensPlayer client:load />}
         {p.id === 'classmap' && <ClassmapDemo client:load />}
@@ -45,7 +70,7 @@ const repo = p.repo.replace('https://', '')
       {s && (
         <section>
           <div class="section-head"><p class="eyebrow">How it works</p><h2>Follow the data.</h2></div>
-          <ol class="steps">{s.architecture.map((a) => <li class="card"><h3>{a.title}</h3><p>{a.body}</p></li>)}</ol>
+          <ol class="steps">{s.architecture.map((a, i) => <li class="paper" data-reveal style={`--d:${i % 2}`}><h3>{a.title}</h3><p>{a.body}</p></li>)}</ol>
         </section>
       )}
 
@@ -54,7 +79,7 @@ const repo = p.repo.replace('https://', '')
           <div class="section-head"><p class="eyebrow">Decisions</p><h2>The choices, and what each one cost.</h2></div>
           <div class="trades">
             {s.tradeoffs.map((t) => (
-              <div class="trade card">
+              <div class="trade paper" data-reveal>
                 <h3>{t.title}</h3>
                 <div><h4>I chose</h4><p>{t.choice}</p></div>
                 <div class="cost"><h4>It cost</h4><p>{t.cost}</p></div>
@@ -72,7 +97,7 @@ const repo = p.repo.replace('https://', '')
         </div>
         <div>
           <Results client:visible results={p.results} verifiedOn={verifiedOn} />
-          {s && <p class="takeaway" style="margin-top:36px">{s.takeaway}</p>}
+          {s && <p class="takeaway yellow"><span class="tape" aria-hidden="true"></span><b>The takeaway</b>{s.takeaway}</p>}
         </div>
       </section>
 
@@ -113,8 +138,8 @@ const repo = p.repo.replace('https://', '')
       )}
 
       <section>
-        <a class="next card" href={url(`work/${next.id}/`)}>
-          <span><span>Next project</span><b>{next.name}</b></span>
+        <a class="next paper" href={url(`work/${next.id}/`)}>
+          <span><span class="label">Next project</span><b>{next.name}</b></span>
           <span class="link" aria-hidden="true">{next.category}</span>
         </a>
       </section>

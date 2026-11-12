@@ -1,21 +1,16 @@
 ---
-import cells from '../data/pacer-results.json'
-import { headline, story, url, type Project } from '../lib/data'
+import { headline, story, tagsOf, url, type Project } from '../lib/data'
+import PacerBars from './PacerBars.astro'
 
-interface Props { project: Project }
-const { project: p } = Astro.props
+interface Props { project: Project; index: number }
+const { project: p, index } = Astro.props
 const h = headline[p.id]
-const chat = cells.find((c) => c.trace === 'To-C chat' && c.cache === '2%')!
-const bars = [['LRU', chat.lru, ''], ['Best heuristic', chat.best, ''], ['Pacer', chat.pacer, 'hi'], ['Foresight', chat.belady, 'ref']] as const
+const tilt = [-0.7, 0.6, 0.5, -0.6][index % 4]
 ---
-<article class="project card">
+<article class="project paper" data-tags={tagsOf(p.stack).join(' ')} data-reveal style={`--tape:${p.accent};--tilt:${tilt}deg;--d:${index};view-transition-name:card-${p.id}`}>
+  <span class="tape" aria-hidden="true"></span>
   <div class="art">
-    {p.id === 'pacer' && (
-      <div class="mini-bars" role="img" aria-label={`Cache hit ratio on the chat trace at 2% cache: ${bars.map(([n, v]) => `${n} ${v}%`).join(', ')}`}>
-        {bars.map(([n, v, c]) => <div class={c}><span>{n}</span><i style={`width:${(v / chat.belady) * 100}%`}></i><span>{v.toFixed(1)}%</span></div>)}
-        <p>Hit ratio, chat trace, 2% cache. Simulated.</p>
-      </div>
-    )}
+    {p.id === 'pacer' && <PacerBars />}
     {p.id === 'tilelens' && <img src={url('media/tilelens/discord-live-02-960.webp')} width="960" height="607" alt="TileLens drawing a suggested play as ghost tiles over a live Letter League game" loading="lazy" />}
     {p.id === 'classmap' && (
       <div class="phones">
@@ -26,7 +21,7 @@ const bars = [['LRU', chat.lru, ''], ['Best heuristic', chat.best, ''], ['Pacer'
   </div>
   <div class="body">
     <span class="cat">{p.category}</span>
-    <h3><a href={url(`work/${p.id}/`)}>{p.name}</a></h3>
+    <h2><a href={url(`work/${p.id}/`)}>{p.name}</a></h2>
     <p class="muted">{story(p.id)?.summary ?? p.one_liner}</p>
     {h && <p class="stat"><b>{h.value}<small>{h.unit}</small></b><span>{h.label}</span></p>}
     <div class="foot">

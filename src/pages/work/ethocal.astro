@@ -1,15 +1,16 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { ethocal, url } from '../../lib/data'
+import { ethocal, ethocalStack, url } from '../../lib/data'
 ---
 <Base title="Ethocal · Joshua Bugarin" description="Ethocal, a team Flutter app for sustainable shopping, and the parts Joshua built." current="work">
   <article class="case">
     <header class="case-hero">
       <div class="wrap">
-        <a class="back" href={`${url('')}#work`}>← All work</a>
+        <a class="back" href={url('work/')}>All work</a>
         <p class="eyebrow">Ethocal · team project</p>
         <h1>A marketplace that argues with fast fashion.</h1>
         <p class="lede">{ethocal.note}</p>
+        <ul class="tags" style="margin-top:18px">{ethocalStack.map((s) => <li>{s}</li>)}</ul>
       </div>
     </header>
     <div class="wrap">

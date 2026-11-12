@@ -1,0 +1,9 @@
+---
+import { captures, email, links, projects, verifiedOn } from '../lib/data'
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <span>© 2026 Joshua Bugarin · Built with Astro · {projects.length} projects, {captures} captures, 0 trackers</span>
+    <span><a href={links.github}>GitHub</a> · <a href={links.linkedin}>LinkedIn</a> · <a href={`mailto:${email}`}>Email</a> · Facts checked {verifiedOn}</span>
+  </div>
+</footer>

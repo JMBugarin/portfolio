@@ -198,7 +198,7 @@ export function Results({ results, verifiedOn }: { results: Result[]; verifiedOn
             <li key={r.claim}>
               <button type="button" aria-expanded={shown} onClick={() => setOpen(open === i ? null : i)}>
                 <span className="claim">{r.claim}</span>
-                <span className="mark">{r.rerun ? 're-run' : 'from repo'}</span>
+                <span className={r.rerun ? 'mark' : 'mark repo'}>{r.rerun ? 're-run' : 'from repo'}</span>
               </button>
               {shown && (
                 <p className="source">

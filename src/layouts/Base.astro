@@ -1,13 +1,16 @@
 ---
-import '@fontsource-variable/geist'
-import '@fontsource-variable/geist-mono'
+import handUrl from '@fontsource-variable/caveat/files/caveat-latin-wght-normal.woff2?url'
+import caslUrl from '@fontsource-variable/recursive/files/recursive-latin-casl-normal.woff2?url'
+import monoUrl from '@fontsource-variable/recursive/files/recursive-latin-mono-normal.woff2?url'
 import '../styles/global.css'
-import { email, links, url, verifiedOn, projects, assets } from '../lib/data'
+import Footer from '../components/Footer.astro'
+import Header from '../components/Header.astro'
+import type { PageId } from '../lib/data'
 
-interface Props { title: string; description: string; current?: 'work' | 'about' }
-const { title, description, current } = Astro.props
-const home = Astro.url.pathname === url('')
-const anchor = (id: string) => (home ? `#${id}` : `${url('')}#${id}`)
+interface Props { title: string; description: string; current?: PageId; bare?: boolean }
+const { title, description, current, bare = false } = Astro.props
+const face = (family: string, src: string, weight: string) => `@font-face{font-family:"${family}";src:url(${src}) format("woff2");font-weight:${weight};font-style:normal;font-display:swap}`
+const fonts = face('Recursive Mono', monoUrl, '300 1000') + face('Recursive Casual', caslUrl, '300 1000') + face('Caveat', handUrl, '400 700')
 ---
 <!doctype html>
 <html lang="en">
@@ -16,60 +19,39 @@ const anchor = (id: string) => (home ? `#${id}` : `${url('')}#${id}`)
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
     <meta name="color-scheme" content="light dark" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232340e0'/%3E%3Ctext x='15' y='22' font-family='ui-monospace,Menlo,monospace' font-weight='600' font-size='16' text-anchor='middle' fill='white'%3EJ%3C/text%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='1' y='4' width='30' height='27' rx='7' fill='%23d6bf8a'/%3E%3Crect x='1' y='1' width='30' height='27' rx='7' fill='%23f8ebc8' stroke='%23d6bf8a' stroke-width='1.5'/%3E%3Ctext x='14' y='22' font-family='ui-rounded,system-ui,sans-serif' font-weight='800' font-size='19' text-anchor='middle' fill='%2325241e'%3EJ%3C/text%3E%3Ctext x='25' y='24.5' font-family='ui-monospace,Menlo,monospace' font-weight='700' font-size='7.5' text-anchor='middle' fill='%2325241e'%3E8%3C/text%3E%3C/svg%3E" />
+    <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={caslUrl} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={fonts}></style>
     <script is:inline>
       (() => {
+        const root = document.documentElement
         let t = null
         try { t = localStorage.getItem('theme') } catch {}
         if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        document.documentElement.dataset.theme = t
+        root.dataset.theme = t
+        root.classList.add('js')
       })()
     </script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="wrap">
-        <a class="brand" href={url('')} aria-label="Joshua Bugarin, home">
-          <span class="mark" aria-hidden="true">J<i>8</i></span>
-          <span>Joshua Bugarin</span>
-        </a>
-        <nav aria-label="Main">
-          <a href={anchor('work')} aria-current={current === 'work' ? 'page' : undefined}>Work</a>
-          <a href={anchor('about')}>About</a>
-          <a href={anchor('contact')}>Contact</a>
-          <a class="keep" href={url(links.resume)}>Resume</a>
-          <button class="theme" type="button" id="theme" aria-label="Switch between light and dark">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
-          </button>
-        </nav>
-      </div>
-      <span class="ruler" aria-hidden="true"></span>
-    </header>
+    <svg class="defs" aria-hidden="true" focusable="false">
+      <filter id="ink" x="-5%" y="-10%" width="110%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="grain" />
+        <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.1 0 0 0 1.4" result="wear" />
+        <feComposite in="SourceGraphic" in2="wear" operator="in" />
+      </filter>
+    </svg>
+    {!bare && <Header current={current} />}
     <main id="main"><slot /></main>
-    <footer class="site-footer">
-      <div class="wrap">
-        <span>© 2026 Joshua Bugarin · Built with Astro · {projects.length} projects, {assets.filter((a) => a.kind === 'image').length} captures, 0 trackers</span>
-        <span>
-          <a href={links.github}>GitHub</a> · <a href={links.linkedin}>LinkedIn</a> · <a href={`mailto:${email}`}>Email</a> · Facts checked {verifiedOn}
-        </span>
-      </div>
-    </footer>
+    {!bare && <Footer />}
     <script>
-      const root = document.documentElement
-      document.getElementById('theme')?.addEventListener('click', () => {
-        const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
-        root.dataset.theme = next
-        try { localStorage.setItem('theme', next) } catch {}
-      })
-      const ruler = () => {
-        const max = root.scrollHeight - innerHeight
-        root.style.setProperty('--read', max > 0 ? String(Math.min(1, scrollY / max)) : '0')
-      }
-      addEventListener('scroll', ruler, { passive: true })
-      addEventListener('resize', ruler)
-      ruler()
+      import '../scripts/chrome.ts'
     </script>
   </body>
 </html>

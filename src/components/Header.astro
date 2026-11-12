@@ -1,0 +1,19 @@
+---
+import { links, pages, url, type PageId } from '../lib/data'
+import Lamp from './Lamp.astro'
+import Tiles from './Tiles.astro'
+
+interface Props { current?: PageId }
+const { current } = Astro.props
+---
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href={url('')} aria-label="Joshua Bugarin, home"><Tiles /></a>
+    <nav aria-label="Main">
+      {pages.slice(1).map((p) => <a href={url(p.path)} aria-current={current === p.id ? 'page' : undefined}>{p.label}</a>)}
+      <a class="resume" href={url(links.resume)}>Resume</a>
+    </nav>
+    <Lamp />
+  </div>
+  <span class="ruler" aria-hidden="true"></span>
+</header>

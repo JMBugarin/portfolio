@@ -1,0 +1,12 @@
+---
+import cells from '../data/pacer-results.json'
+
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props
+const chat = cells.find((c) => c.trace === 'To-C chat' && c.cache === '2%')!
+const bars = [['LRU', 'LRU', chat.lru, ''], ['Best heuristic', 'Best heur.', chat.best, ''], ['Pacer', 'Pacer', chat.pacer, 'hi'], ['Foresight', 'Foresight', chat.belady, 'ref']] as const
+---
+<div class:list={['mini-bars', { compact }]} role={compact ? undefined : 'img'} aria-hidden={compact ? 'true' : undefined} aria-label={compact ? undefined : `Cache hit ratio on the chat trace at 2% cache: ${bars.map(([n, , v]) => `${n} ${v}%`).join(', ')}`}>
+  {bars.map(([name, short, v, cls]) => <div class={cls}><span>{compact ? short : name}</span><i style={`width:${(v / chat.belady) * 100}%`}></i><span>{v.toFixed(1)}{compact ? '' : '%'}</span></div>)}
+  <p>{compact ? 'hit ratio %, simulated' : 'Hit ratio, chat trace, 2% cache. Simulated.'}</p>
+</div>
