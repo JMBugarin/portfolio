@@ -1,0 +1,39 @@
+---
+// The deck's artwork, drawn once per page and reused with <use>.
+// The emblem is a wheel of overlapping cards: an iris closing around a dark moon.
+type Wheel = { id: string; n: number; w: number; h: number; d: number; tilt: number; rx: number; gap: number; over: number }
+const r2 = (n: number) => Math.round(n * 100) / 100
+const blade = (k: Wheel) => `<rect x="${r2(-k.w / 2)}" y="${r2(-k.d - k.h / 2)}" width="${k.w}" height="${k.h}" rx="${k.rx}" transform="rotate(${k.tilt} 0 ${-k.d})"/>`
+// Each card is cut away where the next few lie over it, so the overlap runs all the way round.
+const mask = (k: Wheel) => {
+  const step = 360 / k.n
+  const over = Array.from({ length: k.over }, (_, i) => `<g transform="rotate(${r2(step * (i + 1))})" fill="#000" stroke="#000" stroke-width="${k.gap * 2}" stroke-linejoin="round">${blade(k)}</g>`).join('')
+  return `<mask id="${k.id}" maskUnits="userSpaceOnUse" x="-320" y="-320" width="640" height="640"><rect x="-320" y="-320" width="640" height="640" fill="#fff"/>${over}</mask>`
+}
+const wheel = (k: Wheel) => Array.from({ length: k.n }, (_, i) => `<g transform="rotate(${r2((360 / k.n) * i)})"><g mask="url(#${k.id})">${blade(k)}</g></g>`).join('')
+
+const back: Wheel = { id: 'deck-iris', n: 8, w: 52, h: 88, d: 62, tilt: 72, rx: 8, gap: 5.5, over: 3 }
+const mark: Wheel = { id: 'deck-rose', n: 6, w: 62, h: 104, d: 60, tilt: 78, rx: 11, gap: 9, over: 2 }
+---
+<svg class="deck-art" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <Fragment set:html={mask(back) + mask(mark)} />
+    <clipPath id="deck-window"><rect x="14" y="14" width="212" height="372" rx="6" /></clipPath>
+  </defs>
+  <symbol id="deck-back" viewBox="0 0 240 400">
+    <rect width="240" height="400" style="fill:var(--crimson)" />
+    <g clip-path="url(#deck-window)">
+      <g transform="translate(120 200) scale(1.75)">
+        <g style="fill:var(--stock)" set:html={wheel(back)} />
+        <circle r="30" style="fill:var(--ink)" />
+        <circle r="15" style="fill:var(--stock)" />
+        <circle r="13.5" cx="6.5" cy="-5" style="fill:var(--ink)" />
+      </g>
+    </g>
+    <rect x="11.5" y="11.5" width="217" height="377" rx="8" fill="none" style="stroke:var(--stock)" stroke-width="5" />
+  </symbol>
+  <symbol id="deck-mark" viewBox="-116 -116 232 232">
+    <g fill="currentColor" set:html={wheel(mark)} />
+    <circle r="25" style="fill:var(--crimson)" />
+  </symbol>
+</svg>

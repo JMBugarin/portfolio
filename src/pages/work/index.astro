@@ -1,67 +1,32 @@
 ---
-import ProjectCard from '../../components/ProjectCard.astro'
 import Base from '../../layouts/Base.astro'
-import { ethocal, ethocalAccent, ethocalStack, filters, pageOf, projects, tagsOf, url } from '../../lib/data'
-
-const stacks = [...projects.map((p) => p.stack), ethocalStack]
-const count = (id: string) => stacks.filter((s) => tagsOf(s).includes(id)).length
+import { projects, url } from '../../lib/data'
 ---
-<Base title="Work · Joshua Bugarin" description="Pacer, TileLens and Classmap: three projects, each with its numbers and its limits. Plus Ethocal, a team project." current="work">
-  <div class="wrap">
+<Base title="Work · Joshua Bugarin" description="Pacer, TileLens and Classmap, each with its numbers and its limits, plus Ethocal, a team project." current="work">
+  <div class="page">
     <header class="page-head">
-      <p class="eyebrow">Work · page {pageOf('work')}</p>
-      <h1>Three projects, each with its numbers and its limits.</h1>
-      <p class="lede">Each one opens into a case study. There is a team project at the end, where the code is not mine to show.</p>
+      <p class="eyebrow">Work</p>
+      <h1>Three solo projects and one team project.</h1>
+      <p class="lede">Each opens into the same short write-up: what it is, what I built, the decisions and what held up. The team project comes last, where the code is not mine to show.</p>
     </header>
 
-    <div class="filter" role="group" aria-label="Filter projects by what they are built with">
-      <span class="filter-label hand" aria-hidden="true">made with</span>
-      <div class="seg">
-        <button type="button" data-filter="all" aria-pressed="true">All <sup>{stacks.length}</sup></button>
-        {filters.map((f) => <button type="button" data-filter={f.id} aria-pressed="false">{f.label} <sup>{count(f.id)}</sup></button>)}
-      </div>
-      <p class="sr-only" role="status" id="filter-status"></p>
-    </div>
-
-    <div class="work-grid">
-      {projects.map((p, i) => <ProjectCard project={p} index={i} />)}
-      <article class="project paper" data-tags={tagsOf(ethocalStack).join(' ')} data-reveal style={`--tape:${ethocalAccent};--tilt:-0.6deg;--d:${projects.length};view-transition-name:card-ethocal`}>
-        <span class="tape" aria-hidden="true"></span>
-        <div class="art"><p class="blank hand">Private repo. Nothing to screenshot.</p></div>
-        <div class="body">
-          <span class="cat">Team project</span>
-          <h2><a href={url('work/ethocal/')}>{ethocal.name}</a></h2>
-          <p class="muted">{ethocal.note}</p>
-          <p class="muted">{ethocal.contribution?.replace(/^Built/, 'I built')}</p>
-          <div class="foot">
-            <ul class="tags">{ethocalStack.map((s) => <li>{s}</li>)}</ul>
-            <span class="link" aria-hidden="true">Details</span>
+    <ol class="index">
+      {projects.map((p) => (
+        <li class="entry">
+          <div class="entry-art">
+            {p.cover
+              ? <img src={p.cover.src} srcset={p.cover.srcset} sizes="(min-width: 46rem) 300px, 92vw" width={p.cover.width} height={p.cover.height} alt={p.cover.alt} style={`object-position:${p.cover.focus ?? '50% 50%'}`} loading="lazy" decoding="async" />
+              : <p class="face-sealed"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#deck-mark" /></svg>{p.sealed}</p>}
           </div>
-        </div>
-      </article>
-    </div>
+          <div class="entry-body">
+            <p class="eyebrow">{p.category}</p>
+            <h2><a href={url(`work/${p.id}/`)}>{p.name}</a></h2>
+            <p>{p.summary}</p>
+            {p.stat && <p class="entry-stat"><b>{p.stat.value} {p.stat.unit}</b> {p.stat.label}. <span class="muted">{p.stat.source}</span></p>}
+            <p class="entry-meta muted">{[p.team ? '' : 'Solo project', p.dates, p.stack.slice(0, 4).join(', ')].filter(Boolean).join(' · ')}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
   </div>
 </Base>
-<script>
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')]
-  const cards = [...document.querySelectorAll<HTMLElement>('.project')]
-  const status = document.getElementById('filter-status')
-  const still = matchMedia('(prefers-reduced-motion: reduce)')
-  const show = (id: string) => {
-    let n = 0
-    for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.filter === id))
-    for (const c of cards) {
-      c.hidden = id !== 'all' && !(c.dataset.tags ?? '').split(' ').includes(id)
-      c.classList.add('in')
-      if (!c.hidden) n++
-    }
-    if (status) status.textContent = `Showing ${n} of ${cards.length} projects.`
-  }
-  for (const b of buttons) {
-    b.addEventListener('click', () => {
-      const id = b.dataset.filter ?? 'all'
-      if (still.matches || !document.startViewTransition) show(id)
-      else document.startViewTransition(() => show(id))
-    })
-  }
-</script>

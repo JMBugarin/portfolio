@@ -1,16 +1,16 @@
 ---
-import Tiles from '../components/Tiles.astro'
 import Base from '../layouts/Base.astro'
 import { url } from '../lib/data'
 ---
 <Base title="Not found · Joshua Bugarin" description="This page does not exist.">
-  <div class="wrap">
-    <section class="lone paper grid">
-      <Tiles word="NOPE" />
-      <p class="eyebrow">404</p>
-      <h1>No legal play here.</h1>
-      <p class="lede">That address is not on the board.</p>
-      <a class="btn primary go" href={url('')}>Back to the start</a>
-    </section>
-  </div>
+  <section class="lost">
+    <span class="mini-deck" aria-hidden="true"><svg viewBox="0 0 240 400"><use href="#deck-back" /></svg></span>
+    <p class="eyebrow">404</p>
+    <h1>That page is not in the deck.</h1>
+    <p class="lede">The address may be old or mistyped. Everything on this site is one step from here.</p>
+    <div class="row">
+      <a class="btn primary" href={url('')}>Back to the start</a>
+      <a class="btn" href={url('work/')}>Work index</a>
+    </div>
+  </section>
 </Base>

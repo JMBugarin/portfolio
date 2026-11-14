@@ -1,150 +1,140 @@
 ---
-import { ClassmapDemo, Gallery, PacerExplorer, Results, TileLensPlayer } from '../../components/Islands'
-import PacerBars from '../../components/PacerBars.astro'
-import Sticker from '../../components/Sticker.astro'
+import Figure from '../../components/Figure.astro'
+import { Gallery } from '../../components/Gallery'
 import Base from '../../layouts/Base.astro'
-import { headline, projects, story, url, verifiedOn, type Project } from '../../lib/data'
+import { projects, url, verifiedOn, type Project } from '../../lib/data'
 
+// One template for every project. A section with nothing to say is left out.
 export function getStaticPaths() {
   return projects.map((project) => ({ params: { id: project.id }, props: { project } }))
 }
 interface Props { project: Project }
 const { project: p } = Astro.props
-const s = story(p.id)
-const h = headline[p.id]
-const next = projects[(projects.findIndex((x) => x.id === p.id) + 1) % projects.length]
-const repo = p.repo.replace('https://', '')
+const at = projects.findIndex((x) => x.id === p.id)
+const previous = projects[(at - 1 + projects.length) % projects.length]
+const next = projects[(at + 1) % projects.length]
+const hasMedia = p.media.length > 0 || p.captures.length > 0
+const hasOutcome = !!p.stat || p.results.length > 0 || !!p.lesson || p.limits.length > 0
 ---
-<Base title={`${p.name} · Joshua Bugarin`} description={s?.summary ?? p.one_liner} current="work">
-  <article class="case">
-    <header class="case-hero">
-      <div class="wrap">
-        <a class="back" href={url('work/')}>All work</a>
-        <p class="eyebrow">{p.name} · {p.category}</p>
-        <h1>{s?.headline ?? p.one_liner}</h1>
-        <p class="lede">{s?.summary ?? p.one_liner}</p>
-      </div>
+<Base title={`${p.name} · Joshua Bugarin`} description={p.summary} current="work">
+  <article class="reading project">
+    <header class="project-head">
+      <a class="back" href={url('work/')}>All work</a>
+      <span class="mini-deck" aria-hidden="true"><svg viewBox="0 0 240 400"><use href="#deck-back" /></svg></span>
+      <p class="eyebrow">{p.category} · Project {at + 1} of {projects.length}</p>
+      <h1>{p.name}</h1>
+      <p class="lede">{p.summary}</p>
+      <dl class="meta">
+        <div><dt>Role</dt><dd>{p.role}</dd></div>
+        {p.dates && <div><dt>Dates</dt><dd>{p.dates}</dd></div>}
+        {p.status && <div><dt>Status</dt><dd>{p.status}</dd></div>}
+        {p.stack.length > 0 && <div><dt>Built with</dt><dd><ul class="tags">{p.stack.map((t) => <li>{t}</li>)}</ul></dd></div>}
+      </dl>
+      <ul class="project-links">
+        {p.source && <li><a class="btn primary ext" href={p.source.url}>Source on GitHub</a><span class="muted">{p.source.label}, at commit <code>{p.source.commit}</code></span></li>}
+        {p.links.map((l) => <li><a class="btn ext" href={l.url}>{l.label}</a>{l.note && <span class="muted">{l.note}</span>}</li>)}
+        {!p.source && p.sealed && <li><span class="muted">{p.sealed}</span></li>}
+      </ul>
     </header>
 
-    <div class="wrap">
-      <section class="glance mat-panel" aria-label="At a glance">
-        <div class="glance-card paper">
-          <h2>At a glance</h2>
-          <dl class="meta">
-            <div><dt class="label">Role</dt><dd>Solo project: design, code, tests, measurements</dd></div>
-            <div><dt class="label">Built with</dt><dd><ul class="tags">{p.stack.map((t) => <li>{t}</li>)}</ul></dd></div>
-            <div><dt class="label">Code</dt><dd>{repo} <span class="muted">at {p.commit}</span></dd></div>
-          </dl>
-          <a class="btn primary" href={p.repo}>View on GitHub</a>
-        </div>
-        <figure class="glance-photo paper" style={`--tape:${p.accent}`}>
-          <span class="tape" aria-hidden="true"></span>
-          {p.id === 'pacer' && <PacerBars />}
-          {p.id === 'tilelens' && <img src={url('media/tilelens/discord-live-02-960.webp')} width="960" height="607" alt="TileLens drawing a suggested play as ghost tiles over a live Letter League game" />}
-          {p.id === 'classmap' && (
-            <div class="phones">
-              <img src={url('media/classmap/ios-03-room-600.webp')} width="600" height="1304" alt="Classmap showing a classroom on the campus map" />
-              <img src={url('media/classmap/ios-05-day-600.webp')} width="600" height="1304" alt="Classmap listing a day's classes" />
-            </div>
-          )}
-          {p.id === 'tilelens' && <figcaption>A real game, live in Discord. Player card blurred.</figcaption>}
-          {p.id === 'classmap' && <figcaption>The app in the iOS Simulator, with an invented schedule.</figcaption>}
-          {h && <Sticker value={h.value} unit={h.unit} label={h.short} />}
-        </figure>
-        {h && <p class="glance-source"><b>{h.value} {h.unit}</b> {h.label}. {h.source}</p>}
-      </section>
-
-      <section class="try mat-panel" aria-label="Interactive">
-        {p.id === 'pacer' && <PacerExplorer client:load />}
-        {p.id === 'tilelens' && <TileLensPlayer client:load />}
-        {p.id === 'classmap' && <ClassmapDemo client:load />}
-        {p.id === 'pacer' && <a class="link" href={url('play/#cache')}>Make the eviction call yourself</a>}
-        {p.id === 'tilelens' && <a class="link" href={url('play/#rack')}>Search a rack of tiles yourself</a>}
-      </section>
-
-      {s && (
-        <section class="two">
-          <div><p class="eyebrow">The problem</p><h2>Why it was worth building.</h2></div>
-          <div><p class="prose">{s.problem}</p><p class="prose muted">{s.contribution}</p></div>
-        </section>
-      )}
-
-      {s && (
-        <section>
-          <div class="section-head"><p class="eyebrow">How it works</p><h2>Follow the data.</h2></div>
-          <ol class="steps">{s.architecture.map((a, i) => <li class="paper" data-reveal style={`--d:${i % 2}`}><h3>{a.title}</h3><p>{a.body}</p></li>)}</ol>
-        </section>
-      )}
-
-      {s && (
-        <section>
-          <div class="section-head"><p class="eyebrow">Decisions</p><h2>The choices, and what each one cost.</h2></div>
-          <div class="trades">
-            {s.tradeoffs.map((t) => (
-              <div class="trade paper" data-reveal>
-                <h3>{t.title}</h3>
-                <div><h4>I chose</h4><p>{t.choice}</p></div>
-                <div class="cost"><h4>It cost</h4><p>{t.cost}</p></div>
-              </div>
-            ))}
+    {(p.problem || p.built || p.contribution) && (
+      <section aria-labelledby="overview">
+        <h2 id="overview"><span class="edges" aria-hidden="true"></span>Overview</h2>
+        {p.problem && <div class="part"><h3>The problem</h3><p>{p.problem}</p></div>}
+        {p.built && (
+          <div class="part">
+            <h3>{p.team ? 'What the team built' : 'What I built'}</h3>
+            <p>{p.built}</p>
+            {p.parts.length > 0 && <ol class="steps">{p.parts.map((s) => <li><h4>{s.title}</h4><p>{s.body}</p></li>)}</ol>}
           </div>
-        </section>
-      )}
-
-      <section class="two">
-        <div>
-          <p class="eyebrow">Results</p>
-          <h2>What held up.</h2>
-          <p class="muted" style="margin-top:14px">Each line opens to show where the number comes from.</p>
-        </div>
-        <div>
-          <Results client:visible results={p.results} verifiedOn={verifiedOn} />
-          {s && <p class="takeaway yellow"><span class="tape" aria-hidden="true"></span><b>The takeaway</b>{s.takeaway}</p>}
-        </div>
+        )}
+        {p.contribution && (
+          <div class="part">
+            <h3>My contribution</h3>
+            <p>{p.contribution}</p>
+            {p.contributionNote && <p class="muted">{p.contributionNote}</p>}
+          </div>
+        )}
       </section>
+    )}
 
-      <section class="two">
-        <div><p class="eyebrow">Limits</p><h2>Where it stops.</h2></div>
-        <ul class="limits">{p.limits.map((l) => <li>{l}</li>)}</ul>
+    {hasMedia && (
+      <section aria-labelledby="media">
+        <h2 id="media"><span class="edges" aria-hidden="true"></span>Media</h2>
+        {p.media.map((m) => <Figure media={m} />)}
+        {p.captures.length > 0 && (
+          <div class="part">
+            <h3>More captures</h3>
+            <p class="muted">{p.captures.length} more from the running software. Each one opens with a note on how it was made.</p>
+            <Gallery client:visible captures={p.captures} label={`${p.name} captures`} />
+          </div>
+        )}
       </section>
+    )}
 
-      {p.id === 'pacer' && (
-        <section class="two">
-          <div><p class="eyebrow">Demo</p><h2>The command, uncut.</h2></div>
-          <figure>
-            <div class="frame"><video controls preload="none" playsinline poster={url('media/pacer/demo-table-1600.webp')} src={url('media/pacer/pacer-demo.mp4')} aria-label="Pacer make demo in a terminal"></video></div>
-            <figcaption>`make demo`, real time: five policies on the held-out hour of the chat trace. 38 seconds, most of it one slow baseline.</figcaption>
-          </figure>
-        </section>
-      )}
-      {p.id === 'classmap' && (
-        <section class="two">
-          <div><p class="eyebrow">Demo</p><h2>The app, start to finish.</h2></div>
-          <figure>
-            <div class="frame portrait"><video controls preload="none" playsinline poster={url('media/classmap/ios-03-room-900.webp')} src={url('media/classmap/classmap-ios.mp4')} aria-label="Classmap app walkthrough in the iOS Simulator"></video></div>
-            <figcaption>The real app in the iOS Simulator with an invented schedule. Real time, 49 seconds.</figcaption>
-          </figure>
-        </section>
-      )}
-
-      <section>
-        <div class="section-head"><p class="eyebrow">Evidence</p><h2>From the running software.</h2><p class="muted">Every capture says how it was made.</p></div>
-        <Gallery client:visible project={p.id} label={`${p.name} captures`} />
+    {p.decisions.length > 0 && (
+      <section aria-labelledby="decisions">
+        <h2 id="decisions"><span class="edges" aria-hidden="true"></span>Engineering decisions</h2>
+        <ol class="decisions">
+          {p.decisions.map((d) => (
+            <li>
+              <h3>{d.title}</h3>
+              <dl>
+                <div><dt>I chose</dt><dd>{d.choice}</dd></div>
+                <div><dt>The tradeoff</dt><dd>{d.tradeoff}</dd></div>
+              </dl>
+            </li>
+          ))}
+        </ol>
       </section>
+    )}
 
-      {s && (
-        <section class="two">
-          <div><p class="eyebrow">Read more</p><h2>The engineering notes.</h2></div>
-          <ul class="sources">{s.sourceLinks.map((l) => <li><a class="link ext" href={l.url}>{l.label}</a></li>)}</ul>
-        </section>
-      )}
-
-      <section>
-        <a class="next paper" href={url(`work/${next.id}/`)}>
-          <span><span class="label">Next project</span><b>{next.name}</b></span>
-          <span class="link" aria-hidden="true">{next.category}</span>
-        </a>
+    {hasOutcome && (
+      <section aria-labelledby="outcome">
+        <h2 id="outcome"><span class="edges" aria-hidden="true"></span>Outcome and limitations</h2>
+        {p.stat && (
+          <p class="stat">
+            <b>{p.stat.value}<small>{p.stat.unit}</small></b>
+            <span><strong>{p.stat.label}.</strong> {p.stat.source}</span>
+          </p>
+        )}
+        {p.lesson && <div class="part"><h3>What I learned</h3><p>{p.lesson}</p></div>}
+        {p.results.length > 0 && (
+          <div class="part">
+            <h3>Results</h3>
+            <ul class="results">
+              {p.results.map((r) => (
+                <li>
+                  <p>{r.claim}</p>
+                  <p class="source">Source: <code>{r.source}</code>. {r.rerun ? `I re-ran this on ${verifiedOn}.` : 'From the repository; not re-run.'}</p>
+                </li>
+              ))}
+            </ul>
+            {p.table && (
+              <details class="table-box">
+                <summary>Show the full table</summary>
+                <div class="table-scroll" tabindex="0" role="group" aria-label={p.table.caption}>
+                  <table>
+                    <caption>{p.table.caption}</caption>
+                    <thead><tr>{p.table.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+                    <tbody>{p.table.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody>
+                  </table>
+                </div>
+                <p class="muted">{p.table.note}</p>
+              </details>
+            )}
+          </div>
+        )}
+        {p.limits.length > 0 && <div class="part"><h3>Limits</h3><ul class="limits">{p.limits.map((l) => <li>{l}</li>)}</ul></div>}
+        {p.sources.length > 0 && <div class="part"><h3>Read more</h3><ul class="sources">{p.sources.map((l) => <li><a class="link ext" href={l.url}>{l.label}</a></li>)}</ul></div>}
       </section>
-    </div>
+    )}
+
+    <nav class="pager" aria-label="More projects">
+      <div class="pager-row breakout">
+        <a href={url(`work/${previous.id}/`)}><span>Previous project</span><b>{previous.name}</b></a>
+        <a href={url(`work/${next.id}/`)}><span>Next project</span><b>{next.name}</b></a>
+      </div>
+    </nav>
   </article>
 </Base>

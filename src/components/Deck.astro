@@ -1,0 +1,49 @@
+---
+import { projects, url } from '../lib/data'
+
+// The deck sits in the middle slot and the cards are dealt to either side of it.
+const half = Math.ceil(projects.length / 2)
+const seat = (i: number) => {
+  const off = i < half ? i - half : i - half + 1
+  return `--n:${i};--col:${half + 1 + off};--off:${off};--rz:${off * 2.4}deg;--ty:${off * off * 5}px;--flip:${off < 0 ? -180 : 180}deg;--tilt:${i % 2 ? 0.5 : -0.5}deg`
+}
+---
+<section class="table" id="projects" data-deck data-state="stacked" aria-labelledby="projects-title" style={`--slots:${projects.length + 1};--seat:${half + 1}`}>
+  <h2 class="sr-only" id="projects-title">Projects</h2>
+  <span class="table-rings" aria-hidden="true"></span>
+  <div class="spread">
+    <div class="deck-row">
+      <div class="deck-slot">
+        <div class="deck" aria-hidden="true">
+          <span class="deck-edges"></span>
+          {['c1', 'c2', 'c3'].map((c) => <span class={`deck-card ${c}`}><svg viewBox="0 0 240 400" preserveAspectRatio="none"><use href="#deck-back" /></svg></span>)}
+        </div>
+        <button class="deck-toggle" type="button" aria-expanded="false" aria-controls="deck-cards">
+          <span class="deck-label" data-deck-label>Deal the projects</span>
+        </button>
+      </div>
+    </div>
+    <ul class="cards" id="deck-cards">
+      {projects.map((p, i) => (
+        <li class="card" style={seat(i)}>
+          <article class="face">
+            <div class="face-art">
+              {p.cover
+                ? <img src={p.cover.src} srcset={p.cover.srcset} sizes="(min-width: 1240px) 236px, (min-width: 640px) 46vw, 92vw" width={p.cover.width} height={p.cover.height} alt={p.cover.alt} style={`object-position:${p.cover.focus ?? '50% 50%'}`} decoding="async" />
+                : <p class="face-sealed"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#deck-mark" /></svg>{p.sealed}</p>}
+            </div>
+            <div class="face-body">
+              <h3 class="face-name"><a href={url(`work/${p.id}/`)}>{p.name}</a></h3>
+              <p class="face-text">{p.card}</p>
+            </div>
+            <p class="face-foot"><span>{p.dates ?? p.category}</span></p>
+          </article>
+          <span class="card-back" aria-hidden="true"><svg viewBox="0 0 240 400" preserveAspectRatio="none"><use href="#deck-back" /></svg></span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+<script>
+  import '../scripts/deck.ts'
+</script>

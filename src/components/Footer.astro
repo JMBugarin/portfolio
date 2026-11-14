@@ -1,9 +1,14 @@
 ---
-import { captures, email, links, projects, verifiedOn } from '../lib/data'
+import { email, links, url, verifiedOn } from '../lib/data'
 ---
 <footer class="site-footer">
   <div class="wrap">
-    <span>© 2026 Joshua Bugarin · Built with Astro · {projects.length} projects, {captures} captures, 0 trackers</span>
-    <span><a href={links.github}>GitHub</a> · <a href={links.linkedin}>LinkedIn</a> · <a href={`mailto:${email}`}>Email</a> · Facts checked {verifiedOn}</span>
+    <p>© 2026 Joshua Bugarin · Facts checked {verifiedOn}</p>
+    <ul>
+      <li><a href={`mailto:${email}`}>Email</a></li>
+      <li><a href={links.github}>GitHub</a></li>
+      <li><a href={links.linkedin}>LinkedIn</a></li>
+      <li><a href={url(links.resume)}>Resume (PDF)</a></li>
+    </ul>
   </div>
 </footer>

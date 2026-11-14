@@ -1,16 +1,19 @@
 ---
-import handUrl from '@fontsource-variable/caveat/files/caveat-latin-wght-normal.woff2?url'
-import caslUrl from '@fontsource-variable/recursive/files/recursive-latin-casl-normal.woff2?url'
-import monoUrl from '@fontsource-variable/recursive/files/recursive-latin-mono-normal.woff2?url'
+import displayUrl from '@fontsource-variable/besley/files/besley-latin-wght-normal.woff2?url'
+import italicUrl from '@fontsource-variable/libre-franklin/files/libre-franklin-latin-wght-italic.woff2?url'
+import bodyUrl from '@fontsource-variable/libre-franklin/files/libre-franklin-latin-wght-normal.woff2?url'
 import '../styles/global.css'
+import DeckArt from '../components/DeckArt.astro'
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.astro'
 import type { PageId } from '../lib/data'
 
-interface Props { title: string; description: string; current?: PageId; bare?: boolean }
-const { title, description, current, bare = false } = Astro.props
-const face = (family: string, src: string, weight: string) => `@font-face{font-family:"${family}";src:url(${src}) format("woff2");font-weight:${weight};font-style:normal;font-display:swap}`
-const fonts = face('Recursive Mono', monoUrl, '300 1000') + face('Recursive Casual', caslUrl, '300 1000') + face('Caveat', handUrl, '400 700')
+interface Props { title: string; description: string; current?: PageId }
+const { title, description, current } = Astro.props
+const face = (family: string, src: string, weight: string, style = 'normal') => `@font-face{font-family:"${family}";src:url(${src}) format("woff2");font-weight:${weight};font-style:${style};font-display:swap}`
+const fonts = face('Besley', displayUrl, '400 900') + face('Libre Franklin', bodyUrl, '100 900') + face('Libre Franklin', italicUrl, '100 900', 'italic')
+const canonical = new URL(Astro.url.pathname, Astro.site)
+const icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='1' width='20' height='30' rx='4' fill='%23b3152f'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23e3e6ee'/%3E%3Ccircle cx='16' cy='16' r='3.4' fill='%2312151d'/%3E%3C/svg%3E"
 ---
 <!doctype html>
 <html lang="en">
@@ -19,41 +22,24 @@ const fonts = face('Recursive Mono', monoUrl, '300 1000') + face('Recursive Casu
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f4f0e6" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='1' y='4' width='30' height='27' rx='7' fill='%23d6bf8a'/%3E%3Crect x='1' y='1' width='30' height='27' rx='7' fill='%23f8ebc8' stroke='%23d6bf8a' stroke-width='1.5'/%3E%3Ctext x='14' y='22' font-family='ui-rounded,system-ui,sans-serif' font-weight='800' font-size='19' text-anchor='middle' fill='%2325241e'%3EJ%3C/text%3E%3Ctext x='25' y='24.5' font-family='ui-monospace,Menlo,monospace' font-weight='700' font-size='7.5' text-anchor='middle' fill='%2325241e'%3E8%3C/text%3E%3C/svg%3E" />
-    <link rel="preload" href={monoUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={caslUrl} as="font" type="font/woff2" crossorigin />
+    <meta property="og:url" content={canonical} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0e1118" />
+    <link rel="icon" href={icon} />
+    <link rel="preload" href={displayUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyUrl} as="font" type="font/woff2" crossorigin />
     <style is:inline set:html={fonts}></style>
-    <script is:inline>
-      (() => {
-        const root = document.documentElement
-        let t = null
-        try { t = localStorage.getItem('theme') } catch {}
-        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        root.dataset.theme = t
-        root.classList.add('js')
-        if (t === 'dark') document.querySelector('meta[name="theme-color"]').content = '#0d1210'
-      })()
-    </script>
+    <script is:inline>document.documentElement.classList.add('js')</script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
-    <svg class="defs" aria-hidden="true" focusable="false">
-      <filter id="ink" x="-5%" y="-10%" width="110%" height="120%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="grain" />
-        <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.1 0 0 0 1.4" result="wear" />
-        <feComposite in="SourceGraphic" in2="wear" operator="in" />
-      </filter>
-    </svg>
-    {!bare && <Header current={current} />}
+    <DeckArt />
+    <Header current={current} />
     <main id="main"><slot /></main>
-    {!bare && <Footer />}
-    <script>
-      import '../scripts/chrome.ts'
-    </script>
+    <Footer />
   </body>
 </html>

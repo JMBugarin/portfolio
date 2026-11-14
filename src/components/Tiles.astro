@@ -1,9 +1,0 @@
----
-import { points } from '../lib/tiles'
-
-interface Props { word?: string; class?: string }
-const { word = 'JOSHUA', class: cls } = Astro.props
----
-<span class:list={['tiles', cls]} aria-hidden="true">
-  {[...word].map((l, i) => <span class="tile" data-i={i} data-l={l} style={`--i:${i}`}>{l}<i>{points[l] ?? ''}</i></span>)}
-</span>

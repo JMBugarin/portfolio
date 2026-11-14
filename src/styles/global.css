@@ -1,6 +1,5 @@
 /* One stylesheet, in this order. Tokens are in tokens.css. */
 @import './tokens.css';
 @import './base.css';
-@import './desk.css';
+@import './deck.css';
 @import './pages.css';
-@import './islands.css';

@@ -1,45 +1,20 @@
 ---
-import { ClassmapDemo } from '../components/Islands'
-import { CacheGame, RackSolver } from '../components/Toys'
-import Base from '../layouts/Base.astro'
-import { pageOf, url } from '../lib/data'
+// The play page has been retired. Its address now leads to the work index.
+import { url } from '../lib/data'
+
+const to = url('work/')
 ---
-<Base title="Play · Joshua Bugarin" description="Two toys made from Joshua Bugarin's projects, and one real map: be the cache, search a rack of tiles, walk across campus." current="play">
-  <div class="wrap">
-    <header class="page-head">
-      <p class="eyebrow">Play · page {pageOf('play')}</p>
-      <h1>Two toys and a map.</h1>
-      <p class="lede">Each toy is a small model of one idea from a project. The real numbers are in the case studies.</p>
-    </header>
-
-    <section class="toy" id="cache">
-      <div class="toy-head">
-        <p class="eyebrow">From Pacer</p>
-        <h2>Be the cache.</h2>
-        <p class="muted">You have four slots. Requests arrive one at a time, and a request for a block you still hold is a hit. When the cache is full and something new arrives, you pick what to throw out. At the end you are scored against two simple rules and against perfect foresight.</p>
-        <a class="link" href={url('work/pacer/')}>How Pacer makes this choice</a>
-      </div>
-      <div class="mat-panel try"><CacheGame client:visible /></div>
-    </section>
-
-    <section class="toy" id="rack">
-      <div class="toy-head">
-        <p class="eyebrow">From TileLens</p>
-        <h2>Find the best play.</h2>
-        <p class="muted">Seven tiles and a word list. The page finds the highest-scoring words the rack can spell, and times the search.</p>
-        <a class="link" href={url('work/tilelens/')}>How TileLens reads a whole board</a>
-      </div>
-      <div class="mat-panel try"><RackSolver client:visible /></div>
-    </section>
-
-    <section class="toy" id="map">
-      <div class="toy-head">
-        <p class="eyebrow">From Classmap</p>
-        <h2>Walk across campus.</h2>
-        <p class="muted">This one is not a toy. It is the web map the Classmap repo builds, running in this page.</p>
-        <a class="link" href={url('work/classmap/')}>How Classmap finds the room</a>
-      </div>
-      <div class="mat-panel try"><ClassmapDemo client:visible /></div>
-    </section>
-  </div>
-</Base>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Moved · Joshua Bugarin</title>
+    <meta http-equiv="refresh" content={`0;url=${to}`} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={new URL(to, Astro.site)} />
+  </head>
+  <body>
+    <p>This page has moved to <a href={to}>the work index</a>.</p>
+  </body>
+</html>

@@ -1,134 +1,28 @@
 ---
-import Lamp from '../components/Lamp.astro'
-import PacerBars from '../components/PacerBars.astro'
-import Tiles from '../components/Tiles.astro'
+import Deck from '../components/Deck.astro'
 import Base from '../layouts/Base.astro'
-import { email, headline, links, pageOf, projects, url, verifiedOn } from '../lib/data'
-import { score } from '../lib/tiles'
-
-const name = 'JOSHUA'
-const built = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-const photo: Record<string, { src: string; alt: string }> = {
-  tilelens: { src: 'media/tilelens/discord-live-02-960.webp', alt: '' },
-  classmap: { src: 'media/classmap/web-04-route-960.webp', alt: '' },
-}
+import { email, links, url } from '../lib/data'
 ---
-<Base title="Joshua Bugarin · Software and AI/ML engineering" description="Joshua Bugarin builds small tools and measures them: Pacer, TileLens and Classmap." bare>
-  <div class="desk" data-desk>
-    <Lamp />
-    <p class="cord-hint hand" aria-hidden="true"><span class="to-night">pull for night</span><span class="to-day">pull for day</span>
-      <svg viewBox="0 0 44 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20c9 3 22 1 33-13" /><path d="M27 6l10 0 0 10" /></svg>
-    </p>
-
-    <div class="mat">
-      <div class="mat-scale x" aria-hidden="true">{[0, 200, 400, 600, 800, 1000].map((n) => <span>{n}</span>)}</div>
-      <div class="mat-scale y" aria-hidden="true">{[0, 200, 400, 600].map((n) => <span>{n || ''}</span>)}</div>
-      <span class="mat-pin x" aria-hidden="true"></span>
-      <span class="mat-pin y" aria-hidden="true"></span>
-      <svg class="protractor" viewBox="0 0 150 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1">
-        <path d="M0 150 125.6 116.4M0 150 112.6 85M0 150 91.9 58.1M0 150 65 37.4M0 150 33.6 24.4M60 150A60 60 0 0 0 0 90" />
-        <text x="118" y="82" stroke="none" fill="currentColor">30</text><text x="97" y="55" stroke="none" fill="currentColor">45</text><text x="69" y="33" stroke="none" fill="currentColor">60</text>
-      </svg>
-      <p class="mat-label left">© 2026 Joshua Bugarin · {projects.length} projects · 0 trackers</p>
-      <p class="mat-label right">Grid 40 px · Not to scale · Facts checked {verifiedOn}</p>
-
-      <div class="stack">
-        <div class="folder" aria-hidden="true">
-          <span class="folder-tab">Bugarin, J.</span>
-          <span class="folder-note hand">Nothing under here. I checked.</span>
-        </div>
-
-        <article class="sheet paper grid" data-drag="sheet" data-paper aria-labelledby="hello">
-          <header class="sheet-head">
-            <div class="box name solved" data-rack data-nodrag data-word={name} data-solved={`${name} · ${score(name)} pts`}>
-              <span class="label">Name</span>
-              <span class="rack-row"><Tiles word={name} /><span class="sr-only">Joshua</span><span class="surname hand">Bugarin</span></span>
-              <span class="rack-note"><span data-rack-status role="status">{name} · {score(name)} pts</span> · <button type="button" data-rack-btn>Shuffle the rack</button></span>
-            </div>
-            <div class="box course"><span class="label">Course</span><span class="value">Computer Science</span><span class="sub">Computer Engineering minor</span></div>
-            <div class="box date"><span class="label">Date</span><span class="value" data-today>{built}</span></div>
-            <div class="box page"><span class="label">Page</span><span class="value">{pageOf('home')}</span></div>
-          </header>
-
-          <div class="sheet-main">
-          <div class="sheet-body">
-            <h1 id="hello">Hi, I'm Joshua Bugarin.</h1>
-            <p class="role display">Small tools. Serious engineering.</p>
-            <p class="intro">I build systems that make better decisions: <a class="hl" href={url('work/pacer/')}>what an LLM cache keeps</a>, <a class="hl" href={url('work/tilelens/')}>which word wins the board</a> and <a class="hl" href={url('work/classmap/')}>where your next class actually is</a>. Then I <a class="hl checked" href={url('about/')}>check the work<svg class="scribble" viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 7c12-5 20 4 32 0s20-5 32-1 22 3 30-1 14 0 22 1" /></svg></a>.</p>
-            <nav class="sheet-nav" aria-label="Main">
-              <a class="btn primary go" href={url('work/')}>See the work</a>
-              <a class="hl" href={url('about/')}>About</a>
-              <a class="hl" href={url('play/')}>Play</a>
-              <a class="hl" href={url(links.resume)}>Resume (PDF)</a>
-            </nav>
-          </div>
-
-          <footer class="sheet-foot">
-            <p class="ps hand">
-              <span class="when-desk">P.S. Everything on this desk moves.</span>
-              <span class="when-stack">P.S. The tiles up top shuffle.</span>
-            </p>
-            <ul class="reach">
-              <li><a class="hl" href={`mailto:${email}`}>Email</a></li>
-              <li><a class="hl" href={links.github}>GitHub</a></li>
-              <li><a class="hl" href={links.linkedin}>LinkedIn</a></li>
-            </ul>
-          </footer>
-
-          <a class="seal" href={url('about/')} aria-label="About Joshua: computer science at UC Santa Cruz, class of 2028" data-nodrag>
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <defs><path id="seal-arc" d="M15 60a45 45 0 1 1 90 0a45 45 0 1 1-90 0" /></defs>
-              <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="3" />
-              <circle cx="60" cy="60" r="33" fill="none" stroke="currentColor" stroke-width="1.5" />
-              <text class="ring"><textPath href="#seal-arc">UC SANTA CRUZ · COMPUTER SCIENCE ·</textPath></text>
-              <text class="small" x="60" y="54" text-anchor="middle">CLASS OF</text>
-              <text class="year" x="60" y="75" text-anchor="middle">2028</text>
-            </svg>
-          </a>
-          </div>
-        </article>
+<Base title="Joshua Bugarin · Software and AI/ML engineering" description="Joshua Bugarin studies computer science at UC Santa Cruz with a computer engineering minor, and builds small tools he can measure: Pacer, TileLens and Classmap." current="home">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Software and AI/ML engineering</p>
+      <h1>Joshua Bugarin</h1>
+      <p class="hero-intro">
+        <b>Computer science at UC Santa Cruz, with a computer engineering minor.</b>{' '}
+        I build systems that make better decisions: <a class="inline" href={url('work/pacer/')}>what an LLM cache keeps</a>, <a class="inline" href={url('work/tilelens/')}>which word wins the board</a> and <a class="inline" href={url('work/classmap/')}>where your next class actually is</a>. Then I check the work.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#projects" data-deck-open>Browse projects</a>
+        <a class="btn" href={url('work/')}>Work index</a>
+        <ul class="hero-links">
+          <li><a class="link" href={url(links.resume)}>Resume (PDF)</a></li>
+          <li><a class="link" href={`mailto:${email}`}>Email</a></li>
+          <li><a class="link" href={links.github}>GitHub</a></li>
+          <li><a class="link" href={links.linkedin}>LinkedIn</a></li>
+        </ul>
       </div>
-
-      <div class="around">
-        {projects.map((p, i) => {
-          const h = headline[p.id]
-          return (
-            <a class={`snap paper s${i + 1}`} href={url(`work/${p.id}/`)} data-drag={`snap-${p.id}`} data-paper draggable="false" style={`--tape:${p.accent};--i:${i}`}>
-              <span class="tape" aria-hidden="true"></span>
-              <span class="snap-photo">
-                {p.id === 'pacer' ? <PacerBars compact /> : <img src={url(photo[p.id].src)} alt="" width="960" height="540" draggable="false" />}
-              </span>
-              <span class="snap-cap">
-                <b class="hand">{p.name}</b>
-                <span>{h.value} {h.unit} {h.short}</span>
-              </span>
-            </a>
-          )
-        })}
-
-      <aside class="sticky hand" data-drag="sticky" data-paper aria-label="Contact">
-        <p>Have a good problem?</p>
-        <a href={`mailto:${email}`} draggable="false">Email me</a>
-      </aside>
-
-      <button class="stamper" type="button" data-drag="stamper" data-stamp aria-label="Stamp the desk">
-        <svg viewBox="0 0 64 70" aria-hidden="true">
-          <path class="wood" d="M22 16c0-7 4-12 10-12s10 5 10 12c0 5-3 8-4 13l-1 9H27l-1-9c-1-5-4-8-4-13Z" />
-          <path class="grain" d="M27 12c1-3 3-4 5-4" />
-          <path class="collar" d="M12 38h40a4 4 0 0 1 4 4v9H8v-9a4 4 0 0 1 4-4Z" />
-          <rect class="rubber" x="5" y="51" width="54" height="11" rx="3" />
-          <path class="inkline" d="M9 66h46" />
-        </svg>
-        <span class="stamper-hint hand" aria-hidden="true"><span class="when-desk">drop me somewhere</span><span class="when-stack">tap to stamp</span></span>
-      </button>
-      </div>
-
-      <button class="tidy btn small" type="button" hidden>Tidy the desk</button>
-      <p class="sr-only" role="status" id="desk-status"></p>
     </div>
-  </div>
+  </section>
+  <Deck />
 </Base>
-<script>
-  import '../scripts/tiles.ts'
-  import '../scripts/desk.ts'
-</script>

@@ -1,0 +1,118 @@
+/* The home page: an introduction, then a deck on a table. */
+.hero { text-align: center; padding: clamp(22px, 4svh, 44px) 0 clamp(20px, 3svh, 30px); }
+.hero .eyebrow { justify-content: center; }
+.hero h1 { font-size: clamp(2.9rem, 7.6vw, 5.25rem); margin-top: 10px; letter-spacing: -.02em; }
+.hero-intro { max-width: 41em; margin: 14px auto 0; font-size: clamp(1.125rem, 1.5vw, 1.2rem); line-height: 1.6; }
+.hero-intro b { font-weight: 650; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 14px; margin-top: 22px; }
+.hero-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 22px; margin-left: 12px; font-size: 1.0625rem; }
+
+.table { --gap: 18px; position: relative; width: min(1300px, 100% - 32px); margin-inline: auto; padding: 24px 20px; background: var(--cloth); border: 2px solid var(--rule); border-radius: 28px; }
+.table-rings { position: absolute; inset: 0; overflow: hidden; border-radius: 26px; pointer-events: none; }
+.table-rings::before, .table-rings::after { content: ""; position: absolute; left: 50%; top: 44%; aspect-ratio: 1; translate: -50% -50%; border: 2px solid var(--rule); border-radius: 50%; }
+.table-rings::before { width: min(560px, 150%); }
+.table-rings::after { width: min(980px, 260%); }
+.spread { position: relative; }
+
+/* the deck: three cards over a block of stacked edges */
+.deck-slot { position: relative; padding-bottom: 60px; }
+.deck { position: relative; aspect-ratio: 3 / 5; }
+.deck-edges, .deck-card { position: absolute; inset: 0; border-radius: var(--card-r); }
+.deck-edges { background: var(--stock); box-shadow: 0 2px 0 var(--stock-edge), 0 4px 0 var(--stock), 0 6px 0 var(--stock-edge), 0 8px 0 var(--stock), 0 10px 0 var(--stock-edge), 0 12px 0 var(--stock), 0 14px 0 #7e869a, 0 34px 34px -14px rgb(0 0 0 / .75); }
+.deck-card { overflow: hidden; box-shadow: 0 0 0 1.5px rgb(0 0 0 / .35); }
+.deck-card svg, .card-back svg { width: 100%; height: 100%; }
+.deck-card.c1 { rotate: 3.4deg; translate: 2.5% .6%; }
+.deck-card.c2 { rotate: -2.6deg; translate: -1.8% .3%; }
+.deck-toggle { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; border-radius: var(--card-r); -webkit-tap-highlight-color: transparent; }
+.deck-label { display: inline-block; font: 650 1.0625rem/1.2 var(--body); color: var(--fog); padding: 8px 4px 6px; text-decoration: underline; text-decoration-color: var(--ember); text-decoration-thickness: 2px; text-underline-offset: .28em; white-space: nowrap; }
+.deck-toggle:hover .deck-label { text-decoration-color: var(--fog); }
+html:not(.js) .deck-toggle { display: none; }
+
+/* a card: the face holds the project, the back is the shared artwork */
+.cards { pointer-events: none; }
+.card { position: relative; pointer-events: auto; }
+.face { position: relative; display: flex; flex-direction: column; height: 100%; padding: 9px; color: var(--ink); background: var(--stock); border-radius: var(--card-r); box-shadow: 0 2px 0 var(--stock-edge), 0 16px 22px -12px rgb(0 0 0 / .7); }
+.face-art { position: relative; flex: none; overflow: hidden; border: 2.5px solid var(--ink); border-radius: 8px; background: var(--ink); }
+.face-art img { width: 100%; height: 100%; object-fit: cover; }
+.face-sealed { display: grid; place-content: center; justify-items: center; gap: 10px; height: 100%; padding: 12px; text-align: center; font: 600 .9375rem/1.35 var(--body); color: var(--stock); }
+.face-sealed svg { width: 46px; height: 46px; }
+.face-body { flex: 1; padding: 12px 4px 12px; }
+.face-name { font-size: 1.7rem; font-weight: 850; line-height: 1.1; letter-spacing: -.01em; }
+.face-name a { outline: none; text-decoration: underline; text-decoration-color: transparent; text-decoration-thickness: 3px; text-underline-offset: .16em; transition: text-decoration-color var(--t); }
+.face-name a::after { content: ""; position: absolute; inset: 0; border-radius: var(--card-r); }
+.face-name a:focus-visible::after { outline: 3px solid var(--fog); outline-offset: 4px; }
+.card:hover .face-name a, .face-name a:focus-visible { text-decoration-color: var(--crimson); }
+.face-text { margin-top: 7px; font-size: 1rem; line-height: 1.42; color: var(--ink-soft); }
+.face-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; padding: 6px 12px; border-radius: 8px; background: var(--ink); color: var(--stock); font: 600 .9375rem/1.2 var(--body); }
+.face-foot::after { content: ""; flex: none; width: 1em; height: 1em; background: var(--ember); -webkit-mask: var(--i-arrow) center / contain no-repeat; mask: var(--i-arrow) center / contain no-repeat; transition: translate var(--t); }
+.card:hover .face-foot::after, .card:has(a:focus-visible) .face-foot::after { translate: 3px 0; }
+.card-back { display: none; }
+/* a card in flight cannot be pointed at, so the one leaving from under the pointer is never left looking chosen */
+.js [data-state="dealing"] .card { pointer-events: none; }
+
+/* wide screens: the cards are dealt in an arc either side of the deck */
+@media (min-width: 1240px) {
+  .table { --cw: clamp(216px, (100svh - 452px) * .6, 236px); }
+  .spread { display: grid; }
+  .deck-row, .cards { grid-area: 1 / 1; display: grid; grid-template-columns: repeat(var(--slots), minmax(0, var(--cw))); justify-content: center; gap: var(--gap); }
+  .deck-row { pointer-events: none; }
+  .deck-slot { grid-column: var(--seat); pointer-events: auto; }
+  .js [data-state="stacked"] .deck-slot::before { content: ""; position: absolute; inset: -34px -44px 0; }
+  .card { grid-column: var(--col); grid-row: 1; align-self: start; aspect-ratio: 3 / 5; transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+    --dealt: perspective(1500px) translate3d(0, var(--ty), 0) rotateY(0deg) rotateZ(var(--rz)) scale(1);
+    --home: perspective(1500px) translate3d(calc(var(--off) * -1 * (100% + var(--gap))), 0, 0) rotateY(var(--flip)) rotateZ(0deg) scale(1);
+    --lifted: perspective(1500px) translate3d(0, calc(var(--ty) - 14px), 0) rotateY(0deg) rotateZ(0deg) scale(1.045);
+    transform: var(--dealt); }
+  .face, .card-back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .face { container-type: inline-size; }
+  .face-art { aspect-ratio: 5 / 4; }
+  .face-body { padding-bottom: 0; }
+  .face-name { font-size: clamp(1.5rem, 12cqi, 1.75rem); }
+  .face-text { font-size: clamp(.9375rem, 7cqi, 1rem); }
+  .card-back { display: block; overflow: hidden; border-radius: var(--card-r); transform: rotateY(180deg); pointer-events: none; box-shadow: 0 0 0 1.5px rgb(0 0 0 / .35); }
+  .card:hover, .card:has(a:focus-visible) { z-index: 3; }
+  [data-state] .card:hover, [data-state] .card:has(a:focus-visible) { transform: var(--lifted); }
+  .card:hover .face, .card:has(a:focus-visible) .face { box-shadow: 0 2px 0 var(--stock-edge), 0 0 0 3px var(--crimson), 0 30px 34px -14px rgb(0 0 0 / .8); }
+
+  /* stacked: face down on the deck, out of reach */
+  .js [data-state="stacked"] .card, .js [data-state="shuffling"] .card { transform: var(--home); visibility: hidden; pointer-events: none; transition: transform 230ms cubic-bezier(.5, 0, .7, .4), visibility 0s linear 230ms; }
+  .js [data-state="shuffling"] .card { transition: none; }
+  .js [data-state="dealing"] .card { transition: transform 240ms cubic-bezier(.2, .75, .25, 1) calc(var(--n) * 30ms), visibility 0s; }
+  .js [data-state="open"] .card { transition: transform 150ms cubic-bezier(.2, .7, .3, 1); }
+  .js [data-state="dealing"] .card:hover, .js [data-state="dealing"] .card:has(a:focus-visible) { transition-delay: 0s; }
+
+  /* the shuffle: the top cards cut apart and drop back */
+  .js [data-state="shuffling"] .deck-card.c3 { animation: cut-out 150ms cubic-bezier(.4, 0, .4, 1); }
+  .js [data-state="shuffling"] .deck-card.c2 { animation: cut-back 150ms cubic-bezier(.4, 0, .4, 1); }
+  .js [data-state="shuffling"] .deck-card.c1 { animation: cut-under 150ms cubic-bezier(.4, 0, .4, 1); }
+}
+@keyframes cut-out { 45% { translate: 38% -4%; rotate: 7deg; } 55% { translate: 38% -4%; rotate: 7deg; z-index: -1; } 100% { z-index: -1; } }
+@keyframes cut-back { 50% { translate: -34% 2%; rotate: -8deg; } }
+@keyframes cut-under { 50% { translate: 12% 3%; rotate: 9deg; } }
+
+/* narrow screens: a small deck, then the cards dealt as a readable list */
+@media (max-width: 1239.98px) {
+  .table { --gap: 16px; padding: 22px 16px; border-radius: 22px; }
+  .deck-slot { width: 150px; margin-inline: auto; padding-bottom: 54px; }
+  .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); margin-top: 22px; }
+  .face-art { aspect-ratio: 16 / 9; }
+  .card:hover .face, .card:has(a:focus-visible) .face { box-shadow: 0 2px 0 var(--stock-edge), 0 0 0 3px var(--crimson), 0 16px 22px -12px rgb(0 0 0 / .7); }
+  .js [data-state="stacked"] .cards, .js [data-state="shuffling"] .cards { display: none; }
+  .js [data-state="dealing"] .card { animation: deal-in 220ms cubic-bezier(.2, .75, .25, 1) calc(var(--n) * 40ms) both; }
+  .js [data-state="shuffling"] .deck-card.c3 { animation: cut-out 150ms cubic-bezier(.4, 0, .4, 1); }
+  .js [data-state="shuffling"] .deck-card.c2 { animation: cut-back 150ms cubic-bezier(.4, 0, .4, 1); }
+}
+@media (max-width: 639.98px) {
+  .cards { grid-template-columns: 1fr; }
+  .hero { text-align: left; }
+  .hero .eyebrow, .hero-actions, .hero-links { justify-content: flex-start; }
+  .hero-links { margin-left: 0; }
+}
+@keyframes deal-in { from { opacity: 0; translate: 0 -26px; rotate: -3deg; } }
+
+/* reduced motion: nothing shuffles, turns or travels */
+@media (prefers-reduced-motion: reduce) {
+  .js [data-state] .card, .js [data-state] .card:hover, .js [data-state] .card:has(a:focus-visible) { transform: none; rotate: none; transition: none; animation: none; }
+  .js [data-state] .deck-card { animation: none; }
+  .wordmark:hover svg { rotate: none; }
+}
