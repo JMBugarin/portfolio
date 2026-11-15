@@ -1,50 +1,146 @@
 ---
-import TarotTableScene from '../components/TarotTableScene.astro'
+import { getCollection } from 'astro:content'
+import classmapShot from '../assets/polaroids/classmap.webp'
+import pacerShot from '../assets/polaroids/pacer.webp'
+import tilelensShot from '../assets/polaroids/tilelens.webp'
+import Avatar from '../components/Avatar.astro'
+import Polaroid from '../components/Polaroid.astro'
+import ProjectCard from '../components/ProjectCard.astro'
+import { href, site } from '../data/site'
 import Base from '../layouts/Base.astro'
-import { projects, url } from '../lib/data'
-import { getTarotProjects } from '../lib/tarot'
-const tarotProjects = await getTarotProjects()
-const featured = projects.filter(p => p.stat).map(p => ({ ...p, seat: tarotProjects.find(e => e.projectId === p.id)! }))
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order)
+const tilts = [-1.6, 1.3, 0.9, -1.2]
+const year = new Date().getFullYear()
+const sheet = (id: string) => href(`projects/${id}/`)
+let letterIndex = 0
+const nameWords = site.name.split(' ').map((word) => [...word].map((ch) => ({ ch, i: letterIndex++ })))
 ---
-<Base title="Joshua Bugarin · Software and AI/ML engineering" description="Systems, machine learning, computer vision, and mobile software by Joshua Bugarin. Explore four case studies in an archive above the Gray Fog." current="home" fog="full">
-  <TarotTableScene projects={tarotProjects} />
-  <section class="omens wrap" aria-labelledby="omens-title">
-    <header class="band-head" data-reveal>
-      <p class="label">02 / The evidence</p>
-      <h2 id="omens-title">A little less guesswork.</h2>
-      <p class="muted">Every number comes from a benchmark or a test in the project's own repository, and says what it was measured on.</p>
-    </header>
-    <ol class="plaques">
-      {featured.map((p, i) => (
-        <li class="plaque" data-reveal style={`--d:${i}`}>
-          <p class="label plain">{p.seat.romanNumeral} · {p.seat.arcana}</p>
-          <p class="plaque-figure"><b class="gilt">{p.stat!.value}</b><small>{p.stat!.unit}</small></p>
-          <p class="plaque-what">{p.stat!.label}</p>
-          <p class="plaque-source">{p.stat!.source}</p>
-          <a class="link go" href={url(`projects/${p.id}/`)}>Read {p.name}</a>
-        </li>
-      ))}
-    </ol>
+
+<Base title={`${site.name} · ${site.role}`} description={`${site.name} studies computer science at ${site.school} and builds small tools he can measure.`}>
+  <section class="hero lay" id="top">
+    <div class="hero-copy lay">
+      <span class="avatar-pin mat-only" data-drag style="--r:-3deg" title="Drag me"><Avatar class="avatar" /></span>
+      <h1 class="hero-name">
+        <span class="sr-only">{site.name}</span>
+        <span aria-hidden="true">
+          {nameWords.map((word, w) => (
+            <>
+              {w > 0 && ' '}
+              <span class="hero-word">
+                {word.map(({ ch, i }) => <span class="hero-letter" style={`--i:${i}`}>{ch}</span>)}
+              </span>
+            </>
+          ))}
+        </span>
+      </h1>
+      <p class="hero-role"><span>{site.role}</span> <span class="role-detail">{site.degree}, {site.school}.</span></p>
+      <a class="view-work mat-only" href={href('#projects')}>
+        <span>View work</span>
+        <svg viewBox="0 0 200 72" aria-hidden="true" preserveAspectRatio="none">
+          <path d="M30 13C70 3 150 4 182 18c20 9 14 32-12 40-38 11-110 11-145-1C5 50 2 31 22 20 46 7 98 6 130 8" pathLength="1" />
+        </svg>
+      </a>
+      <ul class="quick-links">
+        <li><a href={href(site.resume)} data-resume>Résumé (PDF)</a></li>
+        <li><a href={site.github}>GitHub</a></li>
+        <li><a href={site.linkedin}>LinkedIn</a></li>
+        <li><a href={`mailto:${site.email}`}>Email</a></li>
+      </ul>
+      <p class="drag-hint mat-only" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><path d="M8 1v14M1 8h14M8 1 6 3m2-2 2 2M8 15l-2-2m2 2 2-2M1 8l2-2M1 8l2 2m12-2-2-2m2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Drag to move
+      </p>
+    </div>
+
+    <div class="hero-decor mat-only">
+      <Polaroid class="d-tilelens" src={tilelensShot} alt="TileLens reading a word-game board" caption="tilelens · 2.2 ms search" href={sheet('tilelens')} tilt={-5} />
+      <div class="note note-blue d-blue" style="--r:7deg" data-drag>
+        <p>“measure first,<br />then brag a little.”</p>
+      </div>
+      <Polaroid class="d-pacer" src={pacerShot} alt="Pacer demo output comparing hit ratios" caption="pacer · 30.2% vs LRU 24.4%" href={sheet('pacer')} tilt={4} position="left top" />
+      <Polaroid class="d-classmap" src={classmapShot} alt="Classmap showing a room on the campus map" caption="classmap · 87/87 rooms" href={sheet('classmap')} tilt={6} />
+      <div class="note note-yellow d-yellow" style="--r:-4deg" data-drag>
+        <p>every number on here comes from a test in the repo ✓</p>
+      </div>
+      <span class="washi d-washi" style="--r:-18deg" data-drag></span>
+    </div>
   </section>
 
-  <section class="creed wrap" aria-labelledby="creed-title">
-    <div class="creed-text" data-reveal>
-      <p class="label">03 / The person behind the work</p>
-      <h2 id="creed-title">Curiosity starts it.
-Care carries it through.</h2>
-      <p>I'm a computer science student at UC Santa Cruz with a computer engineering minor. I work across systems, machine learning, computer vision and mobile software.</p>
-      <p>I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines. A room name that has to resolve to a real place on the map.</p>
-      <div class="row">
-        <a class="btn primary" href={url('about/')}>About me</a>
-        <a class="btn" href={url('about/#contact')}>Get in touch</a>
+  <section class="block lay" id="about" aria-labelledby="about-title">
+    <div class="lay mat:grid mat:grid-cols-1 mat:items-start mat:gap-x-12 mat:gap-y-12 mat:lg:grid-cols-12">
+      <div class="lay mat:lg:col-span-5">
+        <div class="sticky">
+          <span class="tape mat-only" aria-hidden="true"></span>
+          <h2 class="sticky-title" id="about-title">About me</h2>
+          <p class="tagline">{site.tagline}</p>
+          {site.about.map((line) => <p>{line}</p>)}
+        </div>
+      </div>
+      <div class="lay mat:lg:col-span-7">
+        <div class="log-sheet">
+          <span class="tape mat-only" aria-hidden="true"></span>
+          <h2 id="log-title">Revision log</h2>
+          <ol aria-labelledby="log-title">
+            {site.log.map((entry) => (
+              <li>
+                <span class="when">{entry.when}</span>
+                <p><b>{entry.what}.</b> {entry.detail}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </div>
-    <dl class="ledger tall" data-reveal style="--d:1">
-      <div><dt>Studying</dt><dd>B.S. Computer Science</dd></div>
-      <div><dt>Minor</dt><dd>Computer Engineering</dd></div>
-      <div><dt>At</dt><dd>UC Santa Cruz</dd></div>
-      <div><dt>Graduating</dt><dd>June 2028, expected</dd></div>
-      <div><dt>Pathway</dt><dd>Software and AI/ML engineering</dd></div>
-    </dl>
   </section>
+
+  <section class="block lay" id="projects" aria-labelledby="projects-title">
+    <div class="section-head">
+      <p class="label mat-only" aria-hidden="true">Detail A</p>
+      <h2 id="projects-title">Projects</h2>
+    </div>
+    <ul class="lay mat:grid mat:grid-cols-1 mat:gap-x-10 mat:gap-y-12 mat:md:grid-cols-2">
+      {projects.map((project, i) => (
+        <li class="lay"><ProjectCard project={project} index={i} tilt={tilts[i % tilts.length]} /></li>
+      ))}
+    </ul>
+  </section>
+
+  <div class="lay mat:grid mat:grid-cols-1 mat:items-start mat:gap-x-10 mat:gap-y-12 mat:lg:grid-cols-12">
+    <section class="block lay mat:lg:col-span-6" aria-labelledby="toolbox-title">
+      <div class="scrap">
+        <span class="pin mat-only" aria-hidden="true"></span>
+        <h2 id="toolbox-title">Toolbox</h2>
+        <dl>
+          {site.toolbox.map((group) => (
+            <div>
+              <dt>{group.label}</dt>
+              <dd>{group.items.join(', ')}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+
+    <section class="block lay mat:lg:col-span-6" id="contact" aria-labelledby="contact-title">
+      <div class="section-head">
+        <p class="label mat-only" aria-hidden="true">Detail B</p>
+        <h2 id="contact-title">Contact</h2>
+      </div>
+      <ul class="labels lay">
+        <li class="lay"><a class="dymo" style="--r:-1.5deg" href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li class="lay"><a class="dymo" style="--r:1deg" href={site.github}>GitHub / JMBugarin</a></li>
+        <li class="lay"><a class="dymo" style="--r:-0.6deg" href={site.linkedin}>LinkedIn</a></li>
+        <li class="lay"><a class="dymo" style="--r:1.4deg" href={href(site.resume)} data-resume>Résumé PDF</a></li>
+      </ul>
+    </section>
+  </div>
+
+  <footer class="title-block">
+    <div><span>Drawn by</span>{site.name}</div>
+    <div><span>Sheet</span>1 of 1</div>
+    <div><span>Scale</span>1:1</div>
+    <div><span>Date</span>{year}</div>
+    <div class="wide"><span>Materials</span>Astro, Tailwind CSS</div>
+  </footer>
 </Base>

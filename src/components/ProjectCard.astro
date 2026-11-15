@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { href } from '../data/site'
+
+interface Props {
+  project: CollectionEntry<'projects'>
+  index: number
+  tilt: number
+}
+const { project, index, tilt } = Astro.props
+const { title, description, techStack, githubUrl, liveUrl, category, stat } = project.data
+const sheet = href(`projects/${project.id}/`)
+const fig = `FIG. ${String(index + 1).padStart(2, '0')}`
+---
+
+<article class="index-card" style={`--r:${tilt}deg`}>
+  <span class="pin mat-only" aria-hidden="true"></span>
+  <p class="card-fig">{fig}{category && <span> · {category}</span>}</p>
+  <h3 class="card-title"><a href={sheet}>{title}</a></h3>
+  <p class="card-desc">{description}</p>
+  {stat && <p class="stamp">{stat}</p>}
+  <ul class="chips" aria-label="Tech stack">
+    {techStack.map((tech) => <li>{tech}</li>)}
+  </ul>
+  <p class="card-links">
+    {githubUrl && <a href={githubUrl}>Source <span aria-hidden="true">↗</span></a>}
+    {liveUrl && <a href={liveUrl}>Live <span aria-hidden="true">↗</span></a>}
+    <a href={sheet} aria-label={`${title} details`}>Details <span aria-hidden="true">→</span></a>
+  </p>
+</article>
