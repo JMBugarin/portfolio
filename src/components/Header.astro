@@ -1,4 +1,5 @@
 ---
+import { sigil } from '../lib/arcana'
 import { nav, url, type PageId } from '../lib/data'
 
 interface Props { current?: PageId }
@@ -7,7 +8,7 @@ const { current } = Astro.props
 <header class="site-header">
   <div class="wrap">
     <a class="wordmark" href={url('')} aria-label="Joshua Bugarin, home">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="#deck-mark" /></svg>
+      <Fragment set:html={sigil()} />
       Joshua Bugarin
     </a>
     <nav aria-label="Main">

@@ -1,0 +1,87 @@
+---
+import type { TarotProject } from '../lib/tarot'
+import { email, links, projects as caseStudies, url } from '../lib/data'
+import { sigil } from '../lib/arcana'
+interface Props { projects: TarotProject[] }
+const { projects } = Astro.props
+const findStudy = (id?: string) => caseStudies.find(p => p.id === id)
+---
+<tarot-table data-projects={JSON.stringify(projects)} data-model={url('models/tarot-table.glb')} data-draco={url('draco/')} data-view="grid">
+  <section class="sanctum" aria-labelledby="sanctum-title">
+    <header class="sanctum-intro wrap">
+      <div class="sanctum-copy">
+        <p class="sanctum-kicker"><span aria-hidden="true">✧</span> Software &amp; AI/ML engineering</p>
+        <h1 id="sanctum-title">Built with<br />curiosity.<br /><em>Backed by evidence.</em></h1>
+        <p class="sanctum-description">I'm Joshua Bugarin. I build systems that learn, see, and find their way — and test what they can actually do.</p>
+        <div class="sanctum-links">
+          <a class="hero-cta" href="#selected-work">Explore the work <span aria-hidden="true">↘</span></a>
+          <button type="button" data-bio-open hidden>Meet the maker <span aria-hidden="true">↗</span></button>
+          <noscript><a href={url('about/')}>Meet the maker ↗</a></noscript>
+        </div>
+        <p class="hero-note"><span></span> Computer science at UC Santa Cruz <i>·</i> Class of 2028</p>
+      </div>
+      <figure class="sanctum-art">
+        <div class="art-frame">
+          <img src={url('images/gray-sanctum.webp')} width="1086" height="1448" alt="An empty gothic hall, its long table and stone throne illuminated through a silver window above the mist." fetchpriority="high" />
+          <div class="art-corners" aria-hidden="true"></div>
+          <div class="art-caption"><span>THE GRAY FOG</span><span>✧</span><small>A place for questions.</small></div>
+        </div>
+        <figcaption><span>FIG. 01</span> Somewhere between imagination &amp; engineering.</figcaption>
+      </figure>
+    </header>
+    <div class="hero-colophon wrap"><span>Systems · Machine learning · Computer vision · Mobile</span><a href="#selected-work">Scroll to discover <span aria-hidden="true">↓</span></a></div>
+    <section class="selected-work" id="selected-work" aria-labelledby="work-title">
+    <div class="sanctum-top wrap">
+      <div><p class="label plain">01 / The archive</p><h2 id="work-title">Selected work<span class="section-count">(04)</span></h2></div>
+      <div class="work-heading-aside"><p>Four projects. The thinking behind them.</p><button class="view-toggle" type="button" data-view-toggle hidden aria-pressed="false" aria-controls="tarot-grid tarot-viewport">Enter the table <span aria-hidden="true">↗</span></button></div>
+    </div>
+    <div class="tarot-stage" id="tarot-viewport" aria-label="Interactive banquet table" hidden>
+      <div class="tarot-canvas" data-canvas aria-hidden="true"></div>
+      <button class="throne-badge" type="button" data-throne-badge data-bio-open aria-label="About Joshua Bugarin" hidden><Fragment set:html={sigil()} /><span>Joshua Bugarin<small>The one who built it</small></span></button>
+      <div class="seat-labels" data-seat-labels>
+        {projects.map(p => <button type="button" class:list={['seat-label', { reserved: p.reserved }]} data-seat={p.seatMeshName} aria-label={`${p.romanNumeral} · ${p.title}${p.reserved ? ' · Reserved' : ' · Open case study'}`} hidden><span>{p.romanNumeral}</span><small>{p.reserved ? 'Reserved' : p.title}</small></button>)}
+      </div>
+      <div class="tarot-preview" data-seat-preview hidden aria-hidden="true"><p data-preview-arcana></p><h2 data-preview-title></h2><p data-preview-summary></p><ul data-preview-stack></ul><span class="preview-action" data-preview-action></span></div>
+      <p class="table-instruction"><i aria-hidden="true">✦</i> Hover a chair. Open a chapter.</p>
+    </div>
+
+    <div class="fallback-banner wrap" data-fallback-banner hidden><span>✦ For the full Gray Fog 3D experience, visit on a desktop browser.</span><button type="button" data-dismiss-banner aria-label="Dismiss desktop experience notice">×</button></div>
+    <p class="scene-status wrap" data-scene-status role="status" aria-live="polite"></p>
+    <div id="tarot-grid" class="tarot-grid wrap" aria-label="Project index">
+      {projects.filter(p => !p.reserved).map(p => {
+        const study = findStudy(p.projectId)
+        const cover = study?.cover
+        return <article class="archive-card">
+          <div class:list={['project-visual', `project-visual-${p.projectId}`]} aria-hidden="true">
+            <span class="project-number">{p.romanNumeral} <i>/</i> {p.arcana}</span>
+            {cover ? <img src={cover.src} srcset={cover.srcset} sizes="(max-width: 700px) 90vw, 42vw" width={cover.width} height={cover.height} alt="" loading="lazy" /> : <div class="ethocal-art"><svg viewBox="0 0 180 180" fill="none" aria-hidden="true"><circle cx="90" cy="90" r="72"/><circle cx="90" cy="90" r="60" stroke-dasharray="2 8"/><path d="M58 122c-8-39 12-65 64-72 0 54-20 79-54 72M62 125l45-58M78 104V82m13 8h18"/></svg><span>Ethocal</span><small>A more considered everyday.</small></div>}
+            <span class="project-open" aria-hidden="true">↗</span>
+          </div>
+          <div class="archive-card-body">
+            <p class="archive-arcana">{study?.category ?? p.arcana}</p>
+            <h2><a href={p.href} data-mist-link>{p.title}<span class="sr-only"> — open case study</span></a></h2>
+            <p class="archive-summary">{p.summary}</p>
+            <div class="archive-card-foot"><ul class="tags">{p.stack.slice(0, 3).map(t => <li>{t}</li>)}</ul><span>{study?.team ? 'Team project' : 'Independent'}</span></div>
+          </div>
+        </article>
+      })}
+      <div class="reserved-seats">
+        <span class="reserved-intro">The next chapter is still unwritten.</span>
+        {projects.filter(p => p.reserved).map(p => <article class="archive-card is-reserved"><span>{p.romanNumeral}</span><h2>{p.arcana}</h2><small>Reserved</small></article>)}
+      </div>
+    </div>
+    <div class="sanctum-bottom wrap"><a href={url('work/')}>Browse the full archive <span aria-hidden="true">↗</span></a><a href={url(links.resume)}>Resume <span aria-hidden="true">↗</span></a></div>
+    </section>
+  </section>
+  <dialog class="maker-dialog" data-bio-dialog aria-labelledby="maker-title">
+    <button class="dialog-close" type="button" data-bio-close aria-label="Close about panel">×</button>
+    <p class="label plain">0 · The Fool</p><div class="maker-sigil" aria-hidden="true"><Fragment set:html={sigil()} /></div>
+    <h2 id="maker-title">Joshua Bugarin</h2><p class="maker-role">Software &amp; AI/ML engineering</p>
+    <p>I'm a computer science student at UC Santa Cruz, with a computer engineering minor. I work across systems, machine learning, computer vision, and mobile software.</p>
+    <p>I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines.</p>
+    <dl><div><dt>Studying</dt><dd>B.S. Computer Science</dd></div><div><dt>Graduation</dt><dd>June 2028, expected</dd></div></dl>
+    <div class="row"><a class="btn primary" href={url(links.resume)} download>Download resume</a><a class="btn" href={`mailto:${email}`}>Get in touch</a></div>
+    <div class="maker-social"><a href={links.github}>GitHub ↗</a><a href={links.linkedin}>LinkedIn ↗</a><a href={url('about/')}>Full bio ↗</a></div>
+  </dialog>
+</tarot-table>
+<script>import '../scripts/tarot-table'</script>

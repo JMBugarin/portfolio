@@ -1,0 +1,176 @@
+---
+import Card from '../components/Card.astro'
+import ProjectCrest from '../components/ProjectCrest.astro'
+import Figure from '../components/Figure.astro'
+import { Gallery } from '../components/Gallery'
+import Base from '../layouts/Base.astro'
+import { projects, url, verifiedOn, type Project } from '../lib/data'
+import { getTarotProjects } from '../lib/tarot'
+
+// One template for every project. A chapter with nothing to say is left out, and the numbering closes up.
+interface Props { project: Project; seat?: { romanNumeral: string; arcana: string } }
+const { project: p, seat } = Astro.props
+const seats = await getTarotProjects()
+const projectSeat = (id: string) => {
+  const entry = seats.find(s => s.projectId === id)
+  if (!entry) throw new Error(`Project "${id}" needs a matching archive seat.`)
+  return entry
+}
+const currentSeat = seat ?? projectSeat(p.id)
+const at = projects.findIndex((x) => x.id === p.id)
+const previous = projects[(at - 1 + projects.length) % projects.length]
+const next = projects[(at + 1) % projects.length]
+const numerals = ['I', 'II', 'III', 'IV', 'V']
+const chapters = [
+  { id: 'overview', title: 'Overview', show: !!(p.problem || p.built || p.contribution) },
+  { id: 'media', title: 'Media', show: p.media.length > 0 || p.captures.length > 0 },
+  { id: 'decisions', title: 'Engineering decisions', show: p.decisions.length > 0 },
+  { id: 'outcome', title: 'Outcome and limitations', show: !!p.stat || p.results.length > 0 || !!p.lesson || p.limits.length > 0 },
+].filter((c) => c.show).map((c, i) => ({ ...c, numeral: numerals[i] }))
+const chapter = (id: string) => chapters.find((c) => c.id === id)
+const [overview, media, decisions, outcome] = ['overview', 'media', 'decisions', 'outcome'].map(chapter)
+---
+<Base title={`${p.name} · Joshua Bugarin`} description={p.summary} current="work">
+  <article class="case">
+    <header class="case-head">
+      <div>
+        <a class="back" href={url('work/')}>All work</a>
+        <p class="label">{currentSeat.romanNumeral} · {currentSeat.arcana} <span>· Case study {at + 1} of {projects.length}</span></p>
+        <h1>{p.name}</h1>
+        <p class="lede">{p.summary}</p>
+        <ul class="case-links">
+          {p.source && <li><a class="btn primary ext" href={p.source.url}>Source on GitHub</a><span class="muted">{p.source.label}, at commit <code>{p.source.commit}</code></span></li>}
+          {p.links.map((l) => <li><a class="btn ext" href={l.url}>{l.label}</a>{l.note && <span class="muted">{l.note}</span>}</li>)}
+          {!p.source && p.sealed && <li><p class="sealed-note">Sealed. {p.sealed}</p></li>}
+        </ul>
+      </div>
+      <ProjectCrest numeral={currentSeat.romanNumeral} title={currentSeat.arcana} caption={p.name} />
+    </header>
+
+    <dl class="ledger">
+      <div><dt>Role</dt><dd>{p.role}</dd></div>
+      {p.dates && <div><dt>When</dt><dd>{p.dates}</dd></div>}
+      {p.status && <div><dt>Status</dt><dd>{p.status}</dd></div>}
+      <div><dt>Pathway</dt><dd>{p.category}</dd></div>
+      {p.stack.length > 0 && <div class="wide"><dt>Ingredients</dt><dd><ul class="tags">{p.stack.map((t) => <li>{t}</li>)}</ul></dd></div>}
+    </dl>
+
+    <div class="case-body">
+      <nav class="toc" aria-label="On this page">
+        <p class="label plain">The reading</p>
+        <ol>{chapters.map((c) => <li><a href={`#${c.id}`}><b>{c.numeral}</b>{c.title}</a></li>)}</ol>
+      </nav>
+
+      <div class="chapters">
+        <slot />
+        {overview && (
+          <section aria-labelledby="overview">
+            <h2 class="chapter-head" id="overview"><b>{overview.numeral}</b>Overview</h2>
+            {p.problem && <div class="part" data-reveal><h3>The problem</h3><p class="problem">{p.problem}</p></div>}
+            {p.built && (
+              <div class="part" data-reveal>
+                <h3>{p.team ? 'What the team built' : 'What I built'}</h3>
+                <p>{p.built}</p>
+                {p.parts.length > 0 && <ol class="parts">{p.parts.map((s, i) => <li><b>{numerals[i]}</b><h4>{s.title}</h4><p>{s.body}</p></li>)}</ol>}
+              </div>
+            )}
+            {p.contribution && (
+              <div class="part note" data-reveal>
+                <h3>My contribution</h3>
+                <p>{p.contribution}</p>
+                {p.contributionNote && <p class="muted">{p.contributionNote}</p>}
+              </div>
+            )}
+          </section>
+        )}
+
+        {media && (
+          <section aria-labelledby="media">
+            <h2 class="chapter-head" id="media"><b>{media.numeral}</b>Media</h2>
+            {p.media.map((m) => <Figure media={m} />)}
+            {p.captures.length > 0 && (
+              <div class="part">
+                <h3>More captures</h3>
+                <p class="muted">{p.captures.length} more from the running software. Each one opens with a note on how it was made.</p>
+                <Gallery client:visible captures={p.captures} label={`${p.name} captures`} />
+              </div>
+            )}
+          </section>
+        )}
+
+        {decisions && (
+          <section aria-labelledby="decisions">
+            <h2 class="chapter-head" id="decisions"><b>{decisions.numeral}</b>Engineering decisions</h2>
+            <ol class="decisions">
+              {p.decisions.map((d, i) => (
+                <li data-reveal>
+                  <h3><b>{numerals[i]}</b>{d.title}</h3>
+                  <dl class="pair">
+                    <div><dt>I chose</dt><dd>{d.choice}</dd></div>
+                    <div><dt>The tradeoff</dt><dd>{d.tradeoff}</dd></div>
+                  </dl>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        {outcome && (
+          <section aria-labelledby="outcome">
+            <h2 class="chapter-head" id="outcome"><b>{outcome.numeral}</b>Outcome and limitations</h2>
+            {p.stat && (
+              <p class="stat" data-reveal>
+                <b class="gilt">{p.stat.value}<small>{p.stat.unit}</small></b>
+                <span><strong>{p.stat.label}.</strong> {p.stat.source}</span>
+              </p>
+            )}
+            {p.lesson && <div class="part note" data-reveal><h3>What I learned</h3><p>{p.lesson}</p></div>}
+            {p.results.length > 0 && (
+              <div class="part">
+                <h3>Results</h3>
+                <ul class="results">
+                  {p.results.map((r) => (
+                    <li>
+                      <p>{r.claim}</p>
+                      <p class="source">Source: <code>{r.source}</code></p>
+                      <p class:list={['seal', { rerun: r.rerun }]}>{r.rerun ? `Re-ran ${verifiedOn}` : 'From the repository'}</p>
+                    </li>
+                  ))}
+                </ul>
+                {p.table && (
+                  <details class="table-box">
+                    <summary>Show the full table</summary>
+                    <div class="table-scroll" tabindex="0" role="group" aria-label={p.table.caption}>
+                      <table>
+                        <caption>{p.table.caption}</caption>
+                        <thead><tr>{p.table.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+                        <tbody>{p.table.rows.map((row) => <tr>{row.map((cell) => <td>{cell}</td>)}</tr>)}</tbody>
+                      </table>
+                    </div>
+                    <p class="muted">{p.table.note}</p>
+                  </details>
+                )}
+              </div>
+            )}
+            {p.limits.length > 0 && <div class="part"><h3>Limits, read reversed</h3><ul class="limits">{p.limits.map((l) => <li>{l}</li>)}</ul></div>}
+            {p.sources.length > 0 && <div class="part"><h3>Read more</h3><ul class="sources">{p.sources.map((l) => <li><a class="link ext" href={l.url}>{l.label}</a></li>)}</ul></div>}
+          </section>
+        )}
+      </div>
+    </div>
+
+    <nav class="draws" aria-label="More projects">
+      <p class="orn" aria-hidden="true"><i></i></p>
+      <ul>
+        {[{ p: previous, say: 'Previous project' }, { p: next, say: 'Next project' }].map(({ p: other, say }) => (
+          <li>
+            <a class="draw" href={url(`projects/${other.id}/`)} data-mist-link>
+              <span class="flip" aria-hidden="true"><Card /><ProjectCrest numeral={projectSeat(other.id).romanNumeral} title={projectSeat(other.id).arcana} caption={other.name} /></span>
+              <span><small>{say}</small><b>{other.name}</b><i>{projectSeat(other.id).arcana}</i></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </article>
+</Base>

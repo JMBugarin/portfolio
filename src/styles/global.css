@@ -1,5 +1,9 @@
-/* One stylesheet, in this order. Tokens are in tokens.css. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 @import './tokens.css';
 @import './base.css';
-@import './deck.css';
 @import './pages.css';
+@import './sanctum.css';
+
+@import './silver.css';

@@ -1,28 +1,50 @@
 ---
-import Deck from '../components/Deck.astro'
+import TarotTableScene from '../components/TarotTableScene.astro'
 import Base from '../layouts/Base.astro'
-import { email, links, url } from '../lib/data'
+import { projects, url } from '../lib/data'
+import { getTarotProjects } from '../lib/tarot'
+const tarotProjects = await getTarotProjects()
+const featured = projects.filter(p => p.stat).map(p => ({ ...p, seat: tarotProjects.find(e => e.projectId === p.id)! }))
 ---
-<Base title="Joshua Bugarin · Software and AI/ML engineering" description="Joshua Bugarin studies computer science at UC Santa Cruz with a computer engineering minor, and builds small tools he can measure: Pacer, TileLens and Classmap." current="home">
-  <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow">Software and AI/ML engineering</p>
-      <h1>Joshua Bugarin</h1>
-      <p class="hero-intro">
-        <b>Computer science at UC Santa Cruz, with a computer engineering minor.</b>{' '}
-        I build systems that make better decisions: <a class="inline" href={url('work/pacer/')}>what an LLM cache keeps</a>, <a class="inline" href={url('work/tilelens/')}>which word wins the board</a> and <a class="inline" href={url('work/classmap/')}>where your next class actually is</a>. Then I check the work.
-      </p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#projects" data-deck-open>Browse projects</a>
-        <a class="btn" href={url('work/')}>Work index</a>
-        <ul class="hero-links">
-          <li><a class="link" href={url(links.resume)}>Resume (PDF)</a></li>
-          <li><a class="link" href={`mailto:${email}`}>Email</a></li>
-          <li><a class="link" href={links.github}>GitHub</a></li>
-          <li><a class="link" href={links.linkedin}>LinkedIn</a></li>
-        </ul>
+<Base title="Joshua Bugarin · Software and AI/ML engineering" description="Systems, machine learning, computer vision, and mobile software by Joshua Bugarin. Explore four case studies in an archive above the Gray Fog." current="home" fog="full">
+  <TarotTableScene projects={tarotProjects} />
+  <section class="omens wrap" aria-labelledby="omens-title">
+    <header class="band-head" data-reveal>
+      <p class="label">02 / The evidence</p>
+      <h2 id="omens-title">A little less guesswork.</h2>
+      <p class="muted">Every number comes from a benchmark or a test in the project's own repository, and says what it was measured on.</p>
+    </header>
+    <ol class="plaques">
+      {featured.map((p, i) => (
+        <li class="plaque" data-reveal style={`--d:${i}`}>
+          <p class="label plain">{p.seat.romanNumeral} · {p.seat.arcana}</p>
+          <p class="plaque-figure"><b class="gilt">{p.stat!.value}</b><small>{p.stat!.unit}</small></p>
+          <p class="plaque-what">{p.stat!.label}</p>
+          <p class="plaque-source">{p.stat!.source}</p>
+          <a class="link go" href={url(`projects/${p.id}/`)}>Read {p.name}</a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="creed wrap" aria-labelledby="creed-title">
+    <div class="creed-text" data-reveal>
+      <p class="label">03 / The person behind the work</p>
+      <h2 id="creed-title">Curiosity starts it.
+Care carries it through.</h2>
+      <p>I'm a computer science student at UC Santa Cruz with a computer engineering minor. I work across systems, machine learning, computer vision and mobile software.</p>
+      <p>I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines. A room name that has to resolve to a real place on the map.</p>
+      <div class="row">
+        <a class="btn primary" href={url('about/')}>About me</a>
+        <a class="btn" href={url('about/#contact')}>Get in touch</a>
       </div>
     </div>
+    <dl class="ledger tall" data-reveal style="--d:1">
+      <div><dt>Studying</dt><dd>B.S. Computer Science</dd></div>
+      <div><dt>Minor</dt><dd>Computer Engineering</dd></div>
+      <div><dt>At</dt><dd>UC Santa Cruz</dd></div>
+      <div><dt>Graduating</dt><dd>June 2028, expected</dd></div>
+      <div><dt>Pathway</dt><dd>Software and AI/ML engineering</dd></div>
+    </dl>
   </section>
-  <Deck />
 </Base>

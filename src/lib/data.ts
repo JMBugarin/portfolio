@@ -3,6 +3,7 @@ import manifest from '../data/manifest.json'
 import variants from '../data/media-variants.json'
 import cells from '../data/pacer-results.json'
 import data from '../data/projects.json'
+import { arcana, isArcana, type ArcanaId } from './arcana'
 
 export type Link = { label: string; url: string; note?: string }
 export type Result = { claim: string; source: string; rerun: boolean }
@@ -12,6 +13,7 @@ export type Capture = Picture & { purpose: string; method: string; portrait: boo
 export type Table = { caption: string; head: string[]; rows: string[][]; note: string }
 export type Project = {
   id: string; name: string; category: string; summary: string; card: string
+  arcana: { id: ArcanaId; numeral: string; title: string }
   role: string; dates?: string; status?: string; team: boolean; stack: string[]
   source?: Link & { commit: string }
   links: Link[]
@@ -25,7 +27,7 @@ export type Project = {
 
 // What each project page says. Facts that are synced from the project repos stay in projects.json.
 type Page = {
-  category?: string; stack?: string[]; summary: string; card: string; role: string; dates?: string; status?: string; team?: boolean
+  arcana: string; category?: string; stack?: string[]; summary: string; card: string; role: string; dates?: string; status?: string; team?: boolean
   links?: Link[]; sealed?: string
   cover?: { file: string; alt: string; focus?: string }
   stat?: Project['stat']
@@ -69,6 +71,7 @@ const build = (id: string): Project => {
   const page = content[id]
   const fact = facts.find((f) => f.id === id)
   if (!page || !fact) throw new Error(`Project "${id}" needs an entry in both projects.json and case-studies.json`)
+  if (!isArcana(page.arcana)) throw new Error(`Project "${id}" names a card that is not in the deck: ${page.arcana}`)
   const media = (page.media ?? []).map((m): Media => {
     const clip = m.file.endsWith('.mp4') ? assets.find((a) => a.file === m.file) : undefined
     const still = picture(clip ? m.poster! : m.file, m.alt)
@@ -83,6 +86,7 @@ const build = (id: string): Project => {
   return {
     id,
     name: fact.name,
+    arcana: { id: page.arcana, ...arcana(page.arcana) },
     category: page.category ?? fact.category ?? '',
     summary: page.summary,
     card: page.card,
@@ -112,9 +116,14 @@ const build = (id: string): Project => {
   }
 }
 
-// The deck, the work index and the project pages all use this order.
+// The hand, the work index and the project pages all use this order.
 export const projects = [...data.featured_order, 'ethocal'].map(build)
 export const links = data.profile.links
+// The owner's own card, and the seats this deck has taken at the table of twenty-two.
+export const owner = { id: 'fool' as const, ...arcana('fool') }
+const number: Record<string, number> = { I: 1, V: 5, X: 10 }
+const seat = (numeral: string) => [...numeral].reduce((sum, c, i, all) => sum + (number[c] < (number[all[i + 1]] ?? 0) ? -number[c] : number[c]), 0) || 0
+export const seats = [owner, ...projects.map((p) => p.arcana)].map((c) => seat(c.numeral))
 export const email = links.email.replace('mailto:', '')
 export const verifiedOn = new Date(`${data.verified_on}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 

@@ -1,82 +1,84 @@
 ---
+import Card from '../components/Card.astro'
 import Base from '../layouts/Base.astro'
-import { email, links, url } from '../lib/data'
+import { email, links, owner, url } from '../lib/data'
 
-const toolbox = {
-  Languages: ['Python', 'Rust', 'C', 'C++', 'Dart', 'TypeScript', 'JavaScript'],
-  'Frameworks and libraries': ['Flutter', 'React', 'PySide6', 'OpenCV', 'NumPy', 'LightGBM', 'MLX', 'PyO3', 'MapLibre'],
-  Tools: ['Git', 'GitHub Actions', 'uv', 'Cargo', 'pytest', 'Playwright', 'Xcode', 'Figma'],
-}
+// The toolbox, set out the way a potion formula is: what it cannot be made without, then what goes in beside it.
+const formula = [
+  { name: 'Main ingredients', plain: 'Languages', items: ['Python', 'Rust', 'C', 'C++', 'Dart', 'TypeScript', 'JavaScript'] },
+  { name: 'Supplementary ingredients', plain: 'Frameworks and libraries', items: ['Flutter', 'React', 'PySide6', 'OpenCV', 'NumPy', 'LightGBM', 'MLX', 'PyO3', 'MapLibre'] },
+  { name: 'Instruments', plain: 'Tools', items: ['Git', 'GitHub Actions', 'uv', 'Cargo', 'pytest', 'Playwright', 'Xcode', 'Figma'] },
+]
+const method = [
+  { title: 'Measure first, then brag a little.', body: 'Every number on this site comes from a benchmark or test in the repo, and says what it was measured on.' },
+  { title: 'Write the test that can embarrass me.', body: 'A brute-force solver to check the fast one. A reference simulator to check the Rust one.' },
+  { title: 'Publish the misses.', body: 'Limits and failed criteria sit beside the results, not in a drawer.' },
+]
+const numerals = ['I', 'II', 'III']
 ---
 <Base title="About · Joshua Bugarin" description="Joshua Bugarin studies computer science at UC Santa Cruz, with a computer engineering minor, and builds small tools he can measure." current="about">
-  <article class="reading about">
+  <article class="case about">
     <header class="about-head">
-      <p class="eyebrow">About</p>
-      <h1>Curious enough to build it. Skeptical enough to test it.</h1>
-      <p class="prose">I'm a computer science student at UC Santa Cruz with a computer engineering minor. I work across systems, machine learning, computer vision and mobile software.</p>
-      <p class="prose">I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines. A room name that has to resolve to a real place on the map.</p>
-      <dl class="facts">
-        <div><dt>Studying</dt><dd>B.S. Computer Science</dd></div>
-        <div><dt>Minor</dt><dd>Computer Engineering</dd></div>
-        <div><dt>At</dt><dd>UC Santa Cruz</dd></div>
-        <div><dt>Graduating</dt><dd>June 2028, expected</dd></div>
-        <div><dt>Coursework</dt><dd>Data structures and algorithms, computer system design, systems programming in C, machine learning foundations, linear algebra, discrete mathematics</dd></div>
-        <div><dt>Resume</dt><dd><a class="link" href={url(links.resume)}>Resume (PDF)</a></dd></div>
-      </dl>
+      <div>
+        <p class="label">{owner.numeral} · {owner.title}</p>
+        <h1>Curious enough to build it. Skeptical enough to test it.</h1>
+        <p class="prose">I'm a computer science student at UC Santa Cruz with a computer engineering minor. I work across systems, machine learning, computer vision and mobile software.</p>
+        <p class="prose">I like the part where a promising idea meets an inconvenient test. A fast solver checked by a slow one. A model compared with tuned baselines. A room name that has to resolve to a real place on the map.</p>
+        <p class="prose muted">The Fool is the card numbered nought: the one at the start of the road, who has not yet learned what cannot be done.</p>
+      </div>
+      <Card arcana={owner.id} caption="Joshua Bugarin" name="card-fool" />
     </header>
 
-    <section aria-labelledby="timeline">
-      <h2 id="timeline"><span class="edges" aria-hidden="true"></span>So far</h2>
-      <ol class="timeline">
-        <li><time>Expected Jun 2028</time><span><b>UC Santa Cruz.</b> B.S. Computer Science, Computer Engineering minor. Sabatte Scholarship.</span></li>
-        <li><time>Oct 2026</time><span><b>UCSC Silicon Valley HackDev AI Hackathon.</b> Built VaultAI with a team: it organizes receipts and business documents with a local model.</span></li>
-        <li><time>May 2026</time><span><b>DesignVerse Hackathon, UC Riverside.</b> Won with a team of five; the concept became <a class="inline" href={url('work/ethocal/')}>Ethocal</a>.</span></li>
-      </ol>
-    </section>
+    <dl class="ledger">
+      <div><dt>Studying</dt><dd>B.S. Computer Science</dd></div>
+      <div><dt>Minor</dt><dd>Computer Engineering</dd></div>
+      <div><dt>At</dt><dd>UC Santa Cruz</dd></div>
+      <div><dt>Graduating</dt><dd>June 2028, expected</dd></div>
+      <div class="wide"><dt>Coursework</dt><dd>Data structures and algorithms, computer system design, systems programming in C, machine learning foundations, linear algebra, discrete mathematics</dd></div>
+      <div class="wide"><dt>Resume</dt><dd><a class="link" href={url(links.resume)}>Resume (PDF)</a></dd></div>
+    </dl>
 
-    <section aria-labelledby="habits">
-      <h2 id="habits"><span class="edges" aria-hidden="true"></span>How I work</h2>
-      <ol class="habits">
-        <li><b>Measure first, then brag a little.</b><span>Every number on this site comes from a benchmark or test in the repo, and says what it was measured on.</span></li>
-        <li><b>Write the test that can embarrass me.</b><span>A brute-force solver to check the fast one. A reference simulator to check the Rust one.</span></li>
-        <li><b>Publish the misses.</b><span>Limits and failed criteria sit beside the results, not in a drawer.</span></li>
-      </ol>
-    </section>
+    <div class="about-body">
+      <section aria-labelledby="timeline">
+        <h2 class="chapter-head" id="timeline"><b>I</b>So far</h2>
+        <ol class="timeline">
+          <li data-reveal style="--dark:0%"><time>Expected Jun 2028</time><p><b>UC Santa Cruz.</b> B.S. Computer Science, Computer Engineering minor. Sabatte Scholarship.</p></li>
+          <li data-reveal style="--dark:50%"><time>Oct 2026</time><p><b>UCSC Silicon Valley HackDev AI Hackathon.</b> Built VaultAI with a team: it organizes receipts and business documents with a local model.</p></li>
+          <li data-reveal style="--dark:100%"><time>May 2026</time><p><b>DesignVerse Hackathon, UC Riverside.</b> Won with a team of five; the concept became <a class="inline" href={url('work/ethocal/')}>Ethocal</a>.</p></li>
+        </ol>
+      </section>
 
-    <section aria-labelledby="toolbox">
-      <h2 id="toolbox"><span class="edges" aria-hidden="true"></span>What I build with</h2>
-      <div class="toolbox">
-        {Object.entries(toolbox).map(([name, items]) => (
-          <div><h3>{name}</h3><ul class="tags">{items.map((item) => <li>{item}</li>)}</ul></div>
-        ))}
-      </div>
-    </section>
+      <section aria-labelledby="method">
+        <h2 class="chapter-head" id="method"><b>II</b>How I work</h2>
+        <p class="muted prose">The acting method. Three principles I hold to, written down so they can be checked.</p>
+        <ol class="method" style="margin-top:26px">
+          {method.map((m, i) => <li data-reveal style={`--d:${i}`}><b class="gilt">{numerals[i]}</b><h3>{m.title}</h3><p>{m.body}</p></li>)}
+        </ol>
+      </section>
 
-    <section aria-labelledby="contact-title" id="contact">
-      <div class="contact">
-        <h2 id="contact-title">Have a good problem?</h2>
-        <p class="muted">Ask me what an LLM cache should forget, how to read a game board off a screen, or where Baskin Engr 152 is. Then ask how I checked.</p>
-        <a class="email" href={`mailto:${email}`}>{email}</a>
-        <div class="row">
-          <button class="btn primary" type="button" data-copy={email} data-out="copied">Copy email</button>
-          <a class="btn" href={links.github}>GitHub</a>
-          <a class="btn" href={links.linkedin}>LinkedIn</a>
+      <section aria-labelledby="formula">
+        <h2 class="chapter-head" id="formula"><b>III</b>What I build with</h2>
+        <div class="formula">
+          {formula.map((f) => (
+            <div data-reveal><h3>{f.name}<small>{f.plain}</small></h3><ul class="tags">{f.items.map((item) => <li>{item}</li>)}</ul></div>
+          ))}
         </div>
-        <p role="status" id="copied"></p>
-      </div>
-    </section>
+      </section>
+
+      <section aria-labelledby="contact-title" id="contact">
+        <div class="contact" data-reveal>
+          <p class="label">Prayers are answered</p>
+          <h2 id="contact-title">Have a good problem?</h2>
+          <p class="muted">Ask me what an LLM cache should forget, how to read a game board off a screen, or where Baskin Engr 152 is. Then ask how I checked.</p>
+          <a class="email" href={`mailto:${email}`}>{email}</a>
+          <div class="row">
+            <button class="btn primary" type="button" data-copy={email} data-out="copied">Copy email</button>
+            <a class="btn" href={links.github}>GitHub</a>
+            <a class="btn" href={links.linkedin}>LinkedIn</a>
+          </div>
+          <p role="status" id="copied"></p>
+        </div>
+      </section>
+    </div>
   </article>
 </Base>
-<script>
-  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const out = document.getElementById(button.dataset.out ?? '')
-      try {
-        await navigator.clipboard.writeText(button.dataset.copy ?? '')
-        if (out) out.textContent = 'Email copied.'
-      } catch {
-        if (out) out.textContent = 'Copy unavailable. Select the address above.'
-      }
-    })
-  })
-</script>

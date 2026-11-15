@@ -1,300 +1,224 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
-const ready = (page: Page) => page.waitForFunction(() => document.querySelectorAll('astro-island').length > 0 && !document.querySelector('astro-island[client="load"][ssr]'))
-const woken = (page: Page, inside: string) => expect(page.locator(`astro-island[ssr]:has(${inside})`)).toHaveCount(0)
-const pages = ['/', '/work/', '/work/pacer/', '/work/tilelens/', '/work/classmap/', '/work/ethocal/', '/about/', '/play/']
-const middle = async (page: Page, selector: string) => {
-  const box = (await page.locator(selector).boundingBox())!
-  return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2) }
-}
-const drag = async (page: Page, selector: string, dx: number, dy: number) => {
-  const { x, y } = await middle(page, selector)
-  await page.mouse.move(x, y)
-  await page.mouse.down()
-  await page.mouse.move(x + dx / 2, y + dy / 2, { steps: 5 })
-  await page.mouse.move(x + dx, y + dy, { steps: 5 })
-  await page.mouse.up()
+const paths = ['/', '/work/', '/projects/pacer/', '/projects/tilelens/', '/projects/classmap/', '/projects/ethocal/', '/work/pacer/', '/about/']
+const grid = async (page: import('@playwright/test').Page) => {
+  await page.addInitScript(() => sessionStorage.setItem('tarot:view', 'grid'))
+  await page.goto('/')
 }
 
-test('every page loads without errors and has one h1', async ({ page }) => {
-  const errors: string[] = []
-  page.on('pageerror', (e) => errors.push(e.message))
-  page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
-  for (const path of pages) {
-    await page.goto(path)
+test('every case study and existing URL loads with one h1 and no client errors', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message))
+  await page.addInitScript(() => sessionStorage.setItem('tarot:view', 'grid'))
+  for (const path of paths) {
+    const response = await page.goto(path)
+    expect(response?.status()).toBe(200)
     await expect(page.locator('h1')).toHaveCount(1)
     await expect(page.locator('h1')).toBeVisible()
   }
   expect(errors).toEqual([])
 })
 
-test('the home sheet leads to the work, and the work to its case studies', async ({ page }) => {
+test('the static project index has four real links and two reserved seats, without downloading 3D', async ({ page }) => {
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()))
+  await grid(page)
+  await expect(page.locator('.archive-card')).toHaveCount(6)
+  await expect(page.locator('.archive-card h2 a')).toHaveCount(4)
+  await expect(page.locator('.archive-card.is-reserved')).toHaveCount(2)
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+  expect(requests.some(u => /tarot-webgl|tarot-table\.glb|\/draco\//.test(u))).toBe(false)
+})
+
+test('an eligible desktop starts with the project index and downloads no 3D until requested', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 }))
+  const requests: string[] = []; page.on('request', r => requests.push(r.url()))
   await page.goto('/')
-  for (const name of ['Pacer', 'TileLens', 'Classmap']) await expect(page.locator('.snap', { hasText: name })).toBeVisible()
-  await page.getByRole('link', { name: 'See the work' }).click()
-  await expect(page).toHaveURL(/\/work\/$/)
-  for (const name of ['Pacer', 'TileLens', 'Classmap', 'Ethocal']) await expect(page.locator('.project').getByRole('link', { name, exact: true })).toBeVisible()
-  await page.locator('.project').getByRole('link', { name: 'TileLens', exact: true }).click()
-  await expect(page).toHaveURL(/\/work\/tilelens\/$/)
-  await expect(page.locator('h1')).toBeVisible()
-  await page.getByRole('link', { name: 'All work' }).click()
-  await expect(page).toHaveURL(/\/work\/$/)
-  await page.getByRole('link', { name: 'Joshua Bugarin, home' }).click()
-  await expect(page).toHaveURL(/\/$/)
+  await expect(page.getByRole('button', { name: 'Enter the table' })).toBeVisible()
+  await expect(page.locator('tarot-table')).toHaveAttribute('data-view', 'grid')
+  await expect(page.locator('#tarot-grid')).toBeVisible()
+  await expect(page.locator('.archive-card h2 a')).toHaveCount(4)
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+  expect(requests.some(u => /tarot-webgl|tarot-table\.glb|\/draco\//.test(u))).toBe(false)
 })
 
-test.describe('the desk', () => {
-  test.use({ reducedMotion: 'reduce' })
-
-  test('the name rack shuffles, solves and can be rearranged by hand', async ({ page }) => {
-    await page.goto('/')
-    const status = page.locator('[data-rack-status]')
-    await expect(status).toContainText('JOSHUA · 16 pts')
-    await page.getByRole('button', { name: 'Shuffle the rack' }).click()
-    await expect(status).toContainText('not a word yet')
-    await page.getByRole('button', { name: 'Find the best play' }).click()
-    await expect(status).toContainText('JOSHUA · 16 pts')
-    await drag(page, '.name .tile >> nth=0', 80, 0)
-    await expect(status).toContainText('OSJHUA · not a word yet')
-  })
-
-  test('things can be dragged, a drag is not a click, and the desk tidies up', async ({ page }) => {
-    await page.goto('/')
-    const snap = '[data-drag="snap-tilelens"]'
-    const before = await middle(page, snap)
-    await drag(page, snap, -200, 120)
-    expect(await middle(page, snap)).toEqual({ x: before.x - 200, y: before.y + 120 })
-    await expect(page).toHaveURL(/\/$/)
-    await page.reload()
-    expect(await middle(page, snap)).toEqual({ x: before.x - 200, y: before.y + 120 })
-    await page.getByRole('button', { name: 'Tidy the desk' }).click()
-    await expect.poll(() => middle(page, snap)).toEqual(before)
-    await expect(page.getByRole('button', { name: 'Tidy the desk' })).toBeHidden()
-    await page.locator(snap).click()
-    await expect(page).toHaveURL(/\/work\/tilelens\/$/)
-  })
-
-  test('the stamp leaves a mark where it is dropped, or on the sheet when pressed', async ({ page }) => {
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Stamp the desk' }).click()
-    await expect(page.locator('.sheet .ink-mark')).toHaveCount(1)
-    await expect(page.locator('#desk-status')).toHaveText('Stamped: Checked.')
-    await drag(page, '.stamper svg', 0, 150)
-    await expect(page.locator('.ink-mark')).toHaveCount(2)
-    await page.getByRole('button', { name: 'Tidy the desk' }).click()
-    await expect(page.locator('.ink-mark')).toHaveCount(0)
-  })
-})
-
-test('the lamp cord switches the theme, by press or by pull, and it is remembered', async ({ page }) => {
-  await page.goto('/')
-  const theme = () => page.evaluate(() => document.documentElement.dataset.theme)
-  const cord = page.getByRole('button', { name: 'Switch between light and dark' })
-  const before = await theme()
-  await cord.click()
-  await expect.poll(theme).not.toBe(before)
-  const after = await theme()
-  await expect(cord).toHaveAttribute('aria-pressed', String(after === 'dark'))
-  await page.goto('/work/pacer/')
-  expect(await theme()).toBe(after)
-  await drag(page, '#theme i', 0, 60)
-  await expect.poll(theme).toBe(before)
-})
-
-test('the work filter keeps the projects built with a tool', async ({ page }) => {
+test('project identities agree across the archive, canonical pages and legacy URLs', async ({ page }) => {
+  const entries = [
+    { id: 'pacer', title: 'Pacer', label: 'I · The Magician' },
+    { id: 'tilelens', title: 'TileLens', label: 'II · The High Priestess' },
+    { id: 'classmap', title: 'Classmap', label: 'III · The Empress' },
+    { id: 'ethocal', title: 'Ethocal', label: 'IV · The Emperor' },
+  ]
   await page.goto('/work/')
-  await page.getByRole('button', { name: /^Rust/ }).click()
-  await expect(page.locator('.project:visible')).toHaveCount(1)
-  await expect(page.locator('.project:visible')).toContainText('Pacer')
-  await expect(page.locator('#filter-status')).toHaveText('Showing 1 of 4 projects.')
-  await page.getByRole('button', { name: /^Flutter/ }).click()
-  await expect(page.locator('.project:visible')).toHaveCount(2)
-  await page.getByRole('button', { name: /^All/ }).click()
-  await expect(page.locator('.project:visible')).toHaveCount(4)
-})
-
-test('the name badge flips', async ({ page }) => {
-  await page.goto('/about/')
-  const flip = page.getByRole('button', { name: 'Flip the badge' })
-  await flip.click()
-  await expect(flip).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.locator('.badge')).toHaveClass(/flipped/)
-  await page.locator('.badge').click()
-  await expect(flip).toHaveAttribute('aria-pressed', 'false')
-})
-
-test('the cache toy plays a round and scores it against the simple rules', async ({ page }) => {
-  await page.goto('/play/')
-  const game = page.getByRole('region', { name: 'Be the cache' })
-  await game.scrollIntoViewIfNeeded()
-  await woken(page, '.cache')
-  await game.getByRole('button', { name: 'Start' }).click()
-  const open = game.locator('button.slot[aria-disabled="false"]')
-  await expect(async () => {
-    if (await open.count()) await open.first().click()
-    await expect(game.locator('.cache-result')).toBeVisible({ timeout: 300 })
-  }).toPass({ timeout: 40_000, intervals: [150] })
-  const hits = async (row: number) => parseFloat((await game.locator('.bar .val').nth(row).textContent())!)
-  const [you, first, recent, best] = [await hits(0), await hits(1), await hits(2), await hits(3)]
-  expect(best).toBeGreaterThanOrEqual(Math.max(you, first, recent))
-  expect(you).toBeGreaterThan(0)
-  await expect(game.locator('.verdict')).toContainText('LRU')
-  await expect(game.locator('.strip li')).toHaveCount(32)
-})
-
-test('the rack toy finds the best words for the tiles it is given', async ({ page }) => {
-  await page.goto('/play/')
-  const rack = page.getByRole('region', { name: 'Find the best play' })
-  await rack.scrollIntoViewIfNeeded()
-  await woken(page, '.solver')
-  await expect(rack.locator('.plays li').first()).toContainText('CHECK')
-  await rack.getByLabel('Or type two to seven letters').fill('mapquiz')
-  await rack.getByRole('button', { name: 'Search' }).click()
-  await expect(rack.locator('.plays li').first()).toContainText('QUIZ')
-  await expect(rack.locator('.plays li').first()).toContainText('22 pts')
-  await rack.getByRole('button', { name: /ZAP/ }).click()
-  await expect(rack.locator('.tile.played')).toHaveText(['Z10', 'A1', 'P3'])
-  await expect(rack.locator('.note')).toContainText(/Searched 1,796 words in \d+\.\d{3} ms/)
-  await rack.getByRole('button', { name: 'Deal a rack' }).click()
-  await expect(rack.locator('.rack-tiles .tile')).toHaveCount(7)
-})
-
-test('copy email reports what happened', async ({ page, context }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  await page.goto('/about/')
-  await page.getByRole('button', { name: 'Copy email' }).click()
-  await expect(page.locator('#copied')).toHaveText('Email copied.')
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('@')
-})
-
-test('the Pacer explorer shows the real cell for a workload and cache size', async ({ page }) => {
-  await page.goto('/work/pacer/')
-  await ready(page)
-  const box = page.getByRole('region', { name: 'Pacer results explorer' })
-  await box.getByRole('button', { name: 'Coder' }).click()
-  await box.getByRole('button', { name: '5%', exact: true }).click()
-  await expect(box.locator('.bar.hi .val')).toHaveText('58.47%')
-  await expect(box.locator('.verdict')).toContainText('Pacer is ahead')
-  await box.getByRole('button', { name: 'To-C chat' }).click()
-  await box.getByRole('button', { name: '10%' }).click()
-  await expect(box.locator('.verdict')).toContainText('Statistically tied')
-  await box.getByText('Show all 16 cells as a table').click()
-  await expect(box.locator('tbody tr')).toHaveCount(16)
-})
-
-test('a result opens its source, and one button opens them all', async ({ page }) => {
-  await page.goto('/work/tilelens/')
-  const first = page.locator('.results button').first()
-  await first.scrollIntoViewIfNeeded()
-  await first.click()
-  await expect(page.locator('.results .source').first()).toContainText('bench_solver.py')
-  await page.getByRole('button', { name: 'Show where every number comes from' }).click()
-  expect(await page.locator('.results .source').count()).toBeGreaterThan(2)
-})
-
-test('pipeline steps work with arrow keys', async ({ page }) => {
-  await page.goto('/work/tilelens/')
-  await ready(page)
-  await page.getByRole('tab', { name: /Capture/ }).focus()
-  await page.keyboard.press('ArrowRight')
-  await expect(page.getByRole('tab', { name: /Align/ })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByRole('tabpanel')).toContainText('colors of its squares')
-})
-
-test('a chapter button seeks and plays the live recording', async ({ page }) => {
-  await page.goto('/work/tilelens/')
-  await ready(page)
-  await page.getByRole('button', { name: /New rack read/ }).click()
-  await page.waitForFunction(() => {
-    const v = document.querySelector<HTMLVideoElement>('.player video')
-    return !!v && v.readyState >= 2 && v.currentTime >= 21.5 && !v.paused
-  })
-  await expect(page.getByRole('button', { name: /New rack read/ })).toHaveAttribute('aria-current', 'true')
-})
-
-test('every video file loads', async ({ page }) => {
-  for (const path of ['/work/pacer/', '/work/tilelens/', '/work/classmap/']) {
-    await page.goto(path)
-    const durations = await page.evaluate(async () => {
-      const out: number[] = []
-      for (const v of document.querySelectorAll('video')) {
-        v.preload = 'metadata'
-        v.load()
-        await new Promise((ok, bad) => { v.onloadedmetadata = ok; v.onerror = bad })
-        out.push(Math.round(v.duration))
-      }
-      return out
-    })
-    expect(durations.length).toBeGreaterThan(0)
-    for (const d of durations) expect(d).toBeGreaterThan(25)
+  for (const entry of entries) {
+    const row = page.locator('.spread-row').filter({ has: page.getByRole('heading', { name: entry.title, exact: true }) })
+    await expect(row.locator('.label')).toHaveText(entry.label)
+  }
+  for (const entry of entries) {
+    let canonicalLabel = ''
+    for (const prefix of ['projects', 'work']) {
+      await page.goto(`/${prefix}/${entry.id}/`)
+      await expect(page.locator('h1')).toHaveText(entry.title)
+      const label = page.locator('.case-head .label')
+      await expect(label).toContainText(entry.label)
+      if (prefix === 'projects') canonicalLabel = (await label.textContent())!.trim()
+      else await expect(label).toHaveText(canonicalLabel)
+    }
   }
 })
 
-test('the evidence gallery opens, steps with arrows and closes with Escape', async ({ page }) => {
-  await page.goto('/work/tilelens/')
+test('grid links reveal a case study through the mist and back navigation keeps the index usable', async ({ page }) => {
+  await grid(page)
+  await page.locator('.archive-card h2 a').filter({ hasText: 'Pacer' }).click()
+  await expect(page).toHaveURL(/\/projects\/pacer\/$/)
+  await expect(page.locator('h1')).toHaveText('Pacer')
+  await expect(page.locator('html')).not.toHaveAttribute('data-mist', /departing|arriving/)
+  await page.goBack()
+  await expect(page.locator('.archive-card')).toHaveCount(6)
+  await expect(page.locator('#tarot-grid')).toBeVisible()
+  await page.getByRole('button', { name: 'Meet the maker' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+})
+
+test('the maker slide-over traps focus, closes, and restores focus to its trigger', async ({ page }) => {
+  await grid(page)
+  const trigger = page.getByRole('button', { name: 'Meet the maker' })
+  await trigger.click()
+  const dialog = page.getByRole('dialog'); await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('link', { name: 'Download resume' })).toHaveAttribute('download', '')
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden(); await expect(trigger).toBeFocused()
+})
+
+test('3D loads from local assets, exposes all chairs, previews and navigates by keyboard', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 }))
+  const errors: string[] = []; page.on('pageerror', e => errors.push(e.message))
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Enter the table' }).click()
+  await expect(page.locator('[data-canvas] canvas')).toBeVisible()
+  const first = page.locator('[data-seat="Seat_01"]')
+  await expect(first).toBeVisible({ timeout: 30000 })
+  await expect(page.locator('[data-seat]:visible')).toHaveCount(6)
+  await first.focus()
+  await expect(page.locator('[data-seat-preview]')).toBeVisible()
+  await expect(page.locator('[data-preview-title]')).toHaveText('Pacer')
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/\/projects\/pacer\/$/)
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+  await page.goBack()
+  await expect(page.locator('[data-seat="Seat_01"]')).toBeVisible({ timeout: 30000 })
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(1)
+  await page.getByRole('button', { name: 'Back to project index' }).click()
+  await expect(page.locator('#tarot-grid')).toBeVisible()
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+  expect(errors).toEqual([])
+})
+
+test('a failed model request falls back to working project links', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 }))
+  await page.route('**/models/tarot-table.glb', route => route.abort())
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Enter the table' }).click()
+  await expect(page.locator('#tarot-grid')).toBeVisible({ timeout: 30000 })
+  await expect(page.locator('[data-scene-status]')).toContainText('All case studies are available')
+  await expect(page.locator('.archive-card h2 a')).toHaveCount(4)
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+})
+
+test('low-core hardware avoids all WebGL downloads even at desktop width', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 4 }))
+  const urls: string[] = []; page.on('request', r => urls.push(r.url()))
+  await page.goto('/')
+  await expect(page.locator('[data-fallback-banner]')).toBeVisible()
+  await expect(page.locator('#tarot-grid')).toBeVisible()
+  expect(urls.some(u => /tarot-webgl|tarot-table\.glb|\/draco\//.test(u))).toBe(false)
+})
+
+test('switching to grid during a model download immediately releases the canvas', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 }))
+  let abortRequest: (() => Promise<void>) | undefined
+  await page.route('**/models/tarot-table.glb', route => { abortRequest = () => route.abort() })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Enter the table' }).click()
+  await expect(page.locator('[data-canvas] canvas')).toBeVisible()
+  await page.getByRole('button', { name: 'Back to project index' }).click()
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+  await expect(page.locator('#tarot-grid')).toBeVisible()
+  await abortRequest?.()
+})
+
+test('a lost GPU context falls back to the project index', async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 }))
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Enter the table' }).click()
+  await expect(page.locator('[data-seat="Seat_01"]')).toBeVisible({ timeout: 30000 })
+  await page.locator('[data-canvas] canvas').evaluate(canvas => {
+    const context = (canvas as HTMLCanvasElement).getContext('webgl2')!
+    context.getExtension('WEBGL_lose_context')!.loseContext()
+  })
+  await expect(page.locator('#tarot-grid')).toBeVisible()
+  await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+})
+
+test('case-study galleries still work after client-side navigation', async ({ page }) => {
+  await grid(page)
+  await page.locator('.archive-card h2 a').filter({ hasText: 'TileLens' }).click()
   const gallery = page.getByRole('region', { name: 'TileLens captures' })
   await gallery.scrollIntoViewIfNeeded()
-  await gallery.getByRole('button', { name: /Open capture 1 of/ }).click()
-  const caption = gallery.locator('dialog figcaption')
-  await expect(caption).toContainText('1 /')
+  await gallery.getByRole('link', { name: /Open capture 1 of/ }).click()
+  await expect(gallery.locator('dialog')).toBeVisible()
   await page.keyboard.press('ArrowRight')
-  await expect(caption).toContainText('2 /')
+  await expect(gallery.locator('dialog figcaption')).toContainText('2 /')
   await page.keyboard.press('Escape')
   await expect(gallery.locator('dialog')).toBeHidden()
 })
 
-test('the live map loads on request and follows the place buttons', async ({ page }) => {
-  await page.goto('/work/classmap/')
-  await ready(page)
-  await page.getByRole('button', { name: 'Load the live map' }).click()
-  const frame = page.frameLocator('iframe[title="Classmap web map of UC Santa Cruz"]')
-  await expect(frame.getByText('Walking directions')).toBeVisible({ timeout: 30_000 })
-  await page.getByRole('button', { name: 'McHenry Library' }).click()
-  await expect(frame.getByRole('heading', { name: 'McHenry Library' })).toBeVisible({ timeout: 30_000 })
+test('the local Draco payload and resume are served with the expected types', async ({ request }) => {
+  for (const file of ['draco_decoder.js', 'draco_wasm_wrapper.js', 'draco_decoder.wasm']) expect((await request.get(`/draco/${file}`)).status()).toBe(200)
+  const model = await request.get('/models/tarot-table.glb')
+  expect(model.status()).toBe(200); expect((await model.body()).byteLength).toBeLessThan(6000000)
+  const resume = await request.get('/resume/Joshua-Bugarin-Resume.pdf')
+  expect(resume.status()).toBe(200); expect(resume.headers()['content-type']).toContain('pdf')
 })
 
-test('outside links and the resume point at real things', async ({ page, request }) => {
-  await page.goto('/')
-  const hrefs = await page.locator('a[href^="http"]').evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href))
-  const outside = hrefs.filter((h) => !h.startsWith('http://localhost'))
-  expect(outside).toEqual(expect.arrayContaining(['https://github.com/JMBugarin', 'https://linkedin.com/in/Joshua-bugarin']))
-  for (const h of outside) expect(h).toMatch(/^https:\/\/(github\.com\/JMBugarin|linkedin\.com\/in\/Joshua-bugarin)/)
-  const resume = await page.getByRole('link', { name: 'Resume (PDF)' }).getAttribute('href')
-  const res = await request.get(resume!)
-  expect(res.status()).toBe(200)
-  expect(res.headers()['content-type']).toContain('pdf')
-})
-
-test('an unknown address gets the 404 page', async ({ page }) => {
-  const res = await page.goto('/nope/')
-  expect(res?.status()).toBe(404)
-  await expect(page.locator('h1')).toContainText('No legal play')
-})
-
-test.describe('phone', () => {
+test.describe('mobile', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
-  test('nothing overflows sideways on any page, down to a narrow phone', async ({ page }) => {
+  test('2D is automatic, its notice dismisses, and all pages fit at 390 and 320px', async ({ page }) => {
+    const urls: string[] = []; page.on('request', r => urls.push(r.url()))
+    await page.goto('/')
+    await expect(page.locator('[data-fallback-banner]')).toBeVisible()
+    await page.getByRole('button', { name: 'Dismiss desktop experience notice' }).click()
+    await expect(page.locator('[data-fallback-banner]')).toBeHidden()
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 844 })
-      for (const path of pages) {
+      for (const path of paths) {
         await page.goto(path)
-        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${path} at ${width}px`).toBeLessThanOrEqual(0)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${path} at ${width}`).toBeLessThanOrEqual(0)
       }
     }
-  })
-  test('the desk stacks, and the stamp still works by tap', async ({ page }) => {
-    await page.goto('/')
-    await expect(page.locator('.sheet')).toBeVisible()
-    await page.getByRole('button', { name: 'Stamp the desk' }).tap()
-    await expect(page.locator('.ink-mark')).toHaveCount(1)
-    await expect(page.locator('.ink-mark')).toBeInViewport()
+    expect(urls.some(u => /tarot-webgl|tarot-table\.glb|\/draco\//.test(u))).toBe(false)
   })
 })
 
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' })
-  test('transitions are off', async ({ page }) => {
+  test('defaults to static cards and navigation remains available', async ({ page }) => {
     await page.goto('/')
-    expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--t').trim())).toMatch(/^0m?s$/)
+    await expect(page.locator('#tarot-grid')).toBeVisible()
+    await expect(page.locator('[data-canvas] canvas')).toHaveCount(0)
+    await page.locator('.archive-card h2 a').first().click()
+    await expect(page).toHaveURL(/\/projects\/pacer\/$/)
+    await expect(page.locator('html')).not.toHaveAttribute('data-mist', /departing|arriving/)
   })
+})
+
+test('without JavaScript the static cards and case studies are readable', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL })
+  const page = await context.newPage()
+  await page.goto('/')
+  await expect(page.locator('.archive-card h2 a')).toHaveCount(4)
+  await page.locator('.archive-card h2 a').first().click()
+  await expect(page.locator('h1')).toHaveText('Pacer')
+  await expect(page.getByRole('heading', { name: 'The problem', exact: true })).toBeVisible()
+  await context.close()
 })
