@@ -1552,3 +1552,23 @@
     animation: none;
   }
 }
+
+@layer components {
+  /* narrower desktops: keep the pinned photos clear of the name */
+  @media (min-width: 1024px) and (max-width: 1380px) {
+    html[data-view='mat'] .hero .hero-decor .d-tilelens {
+      width: 180px;
+    }
+    html[data-view='mat'] .hero .hero-decor .d-pacer {
+      width: 175px;
+    }
+    html[data-view='mat'] .hero .hero-decor .d-classmap {
+      width: 140px;
+    }
+    html[data-view='mat'] .hero .hero-decor .d-blue {
+      width: 160px;
+      min-height: 150px;
+      font-size: 1.25rem;
+    }
+  }
+}

@@ -16,6 +16,8 @@ interface Props {
   description: string
 }
 const { title, description } = Astro.props
+const ogImage = new URL(href('og.jpg'), Astro.site).href
+const canonical = new URL(Astro.url.pathname, Astro.site).href
 const ticksX = Array.from({ length: 10 }, (_, i) => i)
 const ticksY = Array.from({ length: 40 }, (_, i) => i)
 ---
@@ -30,6 +32,14 @@ const ticksY = Array.from({ length: 40 }, (_, i) => i)
     <meta name="theme-color" content="#e9e5dc" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="627" />
+    <meta property="og:image:alt" content="Joshua Bugarin's portfolio: project photos and notes pinned to a green cutting mat" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href={href('favicon.svg')} />
     <script is:inline>
       ;(function () {
