@@ -1,0 +1,239 @@
+{
+  "verified_on": "2026-11-11",
+  "owner": {
+    "name": "Joshua Bugarin",
+    "github": "JMBugarin",
+    "school": "UC Santa Cruz",
+    "degree": "B.S. Computer Science, Computer Engineering minor",
+    "interests": [
+      "software engineering",
+      "AI/ML engineering"
+    ]
+  },
+  "featured_order": [
+    "pacer",
+    "tilelens",
+    "classmap"
+  ],
+  "linkedin_order": [
+    "tilelens",
+    "pacer",
+    "classmap"
+  ],
+  "projects": [
+    {
+      "id": "tilelens",
+      "name": "TileLens",
+      "repo": "https://github.com/JMBugarin/tilelens",
+      "commit": "5b157ca",
+      "kind": "original-solo",
+      "accent": "#22d3ee",
+      "one_liner": "Reads a tile-game board off the screen and previews the best word plays, locally, in milliseconds.",
+      "category": "Computer vision and search",
+      "stack": [
+        "Python",
+        "OpenCV",
+        "NumPy",
+        "PySide6",
+        "PyObjC/Quartz",
+        "DAWG",
+        "multiprocessing",
+        "uv",
+        "pytest",
+        "GitHub Actions"
+      ],
+      "decisions": [
+        "Unclear tiles are flagged, never guessed",
+        "Fast search checked against a brute-force solver every test run",
+        "Stale results are never shown",
+        "Overlay excluded from its own captures"
+      ],
+      "results": [
+        {
+          "claim": "2.2 ms median search on mid-game 13x13 boards, 204k-word list",
+          "source": "benchmarks/bench_solver.py",
+          "rerun": true
+        },
+        {
+          "claim": "457 tests pass in the CI subset; 565 test functions in all",
+          "source": "uv run pytest -m \"not gui and not slow\"",
+          "rerun": true
+        },
+        {
+          "claim": "99.9-100% of squares read on synthetic boards across five themes, zero silent errors",
+          "source": "README, benchmarks/results/vision.json",
+          "rerun": false
+        },
+        {
+          "claim": "14/14 letters and values on real Discord rack captures, uncalibrated (two racks)",
+          "source": "README, benchmarks/results/discord-rack.json",
+          "rerun": false
+        }
+      ],
+      "limits": [
+        "macOS on Apple silicon only, one machine",
+        "Maximizes this turn's score only",
+        "Side project, not for ranked play; not affiliated with any game"
+      ],
+      "media": {
+        "hero": "media/tilelens/screenshots/discord-live-02.png",
+        "video": "media/tilelens/video/tilelens-discord-live.mp4",
+        "loop": "media/tilelens/video/tilelens-discord-loop.gif",
+        "cover": "media/tilelens/linkedin/tilelens-01-cover-1200x627.png",
+        "video_demo": "media/tilelens/video/tilelens-demo.mp4"
+      }
+    },
+    {
+      "id": "pacer",
+      "name": "Pacer",
+      "repo": "https://github.com/JMBugarin/pacer",
+      "commit": "9775802",
+      "kind": "original-solo-research",
+      "accent": "#60a5fa",
+      "one_liner": "Learned eviction for LLM prefix (KV) caches, tested on Alibaba's public Qwen production traces.",
+      "category": "Systems and ML research",
+      "stack": [
+        "Rust",
+        "Python",
+        "LightGBM",
+        "PyO3",
+        "MLX",
+        "uv",
+        "Cargo",
+        "GitHub Actions"
+      ],
+      "decisions": [
+        "Train, validate and test on separate time windows; every look at the test hour logged",
+        "Tuned baselines, best one per cell picked with hindsight",
+        "Success criteria written before the build, misses published",
+        "Python reference simulator as an executable spec for the Rust one"
+      ],
+      "results": [
+        {
+          "claim": "Chat trace, 2% cache, held-out hour: LRU 24.36%, S3-FIFO 26.26%, ATC'25 27.97%, Pacer 30.19%, Belady 55.16% hit ratio",
+          "source": "make demo",
+          "rerun": true
+        },
+        {
+          "claim": "Better than the best tuned heuristic in 13 of 16 trace x size cells, tied in 3, worse in 0",
+          "source": "README, results/final_summary.json",
+          "rerun": false
+        },
+        {
+          "claim": "49-230 ns per evicted block",
+          "source": "README",
+          "rerun": false
+        },
+        {
+          "claim": "Live MLX replay: mean time to first token 1.2% lower than LRU (95% CI 0.1-2.4%)",
+          "source": "README, docs/results.md",
+          "rerun": false
+        },
+        {
+          "claim": "8 Rust tests and 456 Python tests pass",
+          "source": "cargo test, pytest",
+          "rerun": true
+        }
+      ],
+      "limits": [
+        "Trace-driven simulation, not a production deployment",
+        "Two hours per trace, one temporal split",
+        "Per-workload models",
+        "No gain on chat at 5-10% cache"
+      ],
+      "media": {
+        "hero": "media/pacer/screenshots/fig-hit-vs-capacity.png",
+        "video": "media/pacer/video/pacer-demo.mp4",
+        "loop": "media/pacer/video/pacer-loop.gif",
+        "cover": "media/pacer/linkedin/pacer-01-cover-1200x627.png"
+      }
+    },
+    {
+      "id": "classmap",
+      "name": "Classmap",
+      "repo": "https://github.com/JMBugarin/ucsc-campus-router-v2",
+      "commit": "62f7541",
+      "kind": "original-solo",
+      "accent": "#fdc700",
+      "one_liner": "Your UC Santa Cruz class schedule on a campus map, including rooms the big map apps can't find.",
+      "category": "Mobile and maps",
+      "stack": [
+        "Flutter",
+        "Dart",
+        "Riverpod",
+        "Swift (Apple Vision)",
+        "TypeScript",
+        "React",
+        "MapLibre",
+        "Python",
+        "OpenStreetMap"
+      ],
+      "decisions": [
+        "No server, no account: data ships in the app",
+        "Dart port pinned to recorded Python outputs",
+        "Hands walking directions to the system maps app"
+      ],
+      "results": [
+        {
+          "claim": "87 of 87 official classrooms resolve to a building, room and position",
+          "source": "docs/status.md",
+          "rerun": false
+        },
+        {
+          "claim": "401 Flutter, 31 web and 55 data-pipeline tests pass",
+          "source": "flutter test, npm test, unittest",
+          "rerun": true
+        }
+      ],
+      "limits": [
+        "Tested in the iOS Simulator, not on a physical device",
+        "Photo import is iOS only",
+        "Not on an app store",
+        "Not affiliated with UC Santa Cruz"
+      ],
+      "media": {
+        "hero": "media/classmap/screenshots/ios-03-room.png",
+        "video": "media/classmap/video/classmap-ios.mp4",
+        "video_web": "media/classmap/video/classmap-web.mp4",
+        "loop": "media/classmap/video/classmap-web-loop.gif",
+        "cover": "media/classmap/linkedin/classmap-01-cover-1200x627.png"
+      }
+    }
+  ],
+  "other": [
+    {
+      "id": "ethocal",
+      "name": "Ethocal",
+      "repo": "https://github.com/anthonyduenez/ethocal",
+      "visibility": "private",
+      "kind": "team",
+      "note": "Flutter app for sustainable shopping; the concept won the DesignVerse Hackathon at UC Riverside (May 2026) with a team of five.",
+      "contribution": "Built the messaging interface, the profile pages, the schedule and edit-event pages, and the event details page.",
+      "contribution_source": "Stated by Joshua on 2026-11-11; not verifiable from the repository's commit history."
+    },
+    {
+      "id": "coursework",
+      "name": "CSE 101 / CSE 130 coursework",
+      "kind": "coursework",
+      "note": "Private by course policy. Never publish."
+    }
+  ],
+  "profile": {
+    "repo": "JMBugarin/JMBugarin",
+    "readme_order": [
+      "pacer",
+      "tilelens",
+      "classmap",
+      "ethocal"
+    ],
+    "links": {
+      "github": "https://github.com/JMBugarin",
+      "linkedin": "https://linkedin.com/in/Joshua-bugarin",
+      "email": "mailto:jbugarin85424@gmail.com",
+      "resume": "resume/Joshua-Bugarin-Resume.pdf"
+    },
+    "not_published": [
+      "portfolio URL (not live)"
+    ]
+  }
+}

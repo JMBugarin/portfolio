@@ -1,0 +1,9 @@
+---
+import { back, face, type ArcanaId } from '../lib/arcana'
+
+// A card face, or the shared back when no arcana is named. `name` ties it to the same card on the next page.
+interface Props { arcana?: ArcanaId; caption?: string; sealed?: boolean; name?: string; class?: string }
+const { arcana, caption = '', sealed = false, name, class: extra } = Astro.props
+const art = arcana ? face(arcana, caption, { sealed }) : back()
+---
+<span class:list={['tarot', extra]} style={name ? `view-transition-name:${name}` : undefined} set:html={art} />

@@ -1,0 +1,8 @@
+---
+import CaseStudy from '../../components/CaseStudy.astro'
+import { projects, type Project } from '../../lib/data'
+export function getStaticPaths() { return projects.map(project => ({params: {id: project.id}, props: {project}})) }
+interface Props { project: Project }
+const { project } = Astro.props
+---
+<CaseStudy project={project} />

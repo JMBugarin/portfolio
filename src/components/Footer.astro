@@ -1,0 +1,23 @@
+---
+import { email, links, url, verifiedOn } from '../lib/data'
+
+// The maker and four completed chapters occupy the first five seats.
+const taken = new Set([0, 1, 2, 3, 4])
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <ol class="seats" aria-hidden="true">
+      {Array.from({ length: 22 }, (_, i) => <li class:list={{ taken: taken.has(i) }} />)}
+    </ol>
+    <p class="seats-note">Twenty-two seats at the long table. {taken.size === 5 ? 'Five' : taken.size} are taken.</p>
+    <div class="foot">
+      <p>© 2026 Joshua Bugarin · Facts checked {verifiedOn}</p>
+      <ul>
+        <li><a href={`mailto:${email}`}>Email</a></li>
+        <li><a href={links.github}>GitHub</a></li>
+        <li><a href={links.linkedin}>LinkedIn</a></li>
+        <li><a href={url(links.resume)}>Resume (PDF)</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

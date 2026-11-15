@@ -1,0 +1,38 @@
+---
+import ProjectCrest from '../../components/ProjectCrest.astro'
+import Base from '../../layouts/Base.astro'
+import { projects, url } from '../../lib/data'
+import { getTarotProjects } from '../../lib/tarot'
+const seats = await getTarotProjects()
+const entries = projects.map(project => {
+  const seat = seats.find(s => s.projectId === project.id)
+  if (!seat) throw new Error(`Project "${project.id}" needs a matching archive seat.`)
+  return { project, seat }
+})
+---
+<Base title="Work · Joshua Bugarin" description="Pacer, TileLens and Classmap, each with its numbers and its limits, plus Ethocal, a team project." current="work">
+  <div class="page">
+    <header class="page-head">
+      <p class="label">Selected work · I–IV</p>
+      <h1>Four projects. A closer look.</h1>
+      <p class="lede">Systems, computer vision, and software that finds its way. Three solo projects and one collaboration, with the decisions, evidence, and limitations behind each.</p>
+    </header>
+
+    <ol class="spread">
+      {entries.map(({ project: p, seat }) => (
+        <li class="spread-row" data-reveal>
+          <ProjectCrest numeral={seat.romanNumeral} title={seat.arcana} caption={p.name} />
+          <div class="spread-body">
+            <p class="label">{seat.romanNumeral} · {seat.arcana}</p>
+            <h2><a href={url(`projects/${p.id}/`)}>{p.name}</a></h2>
+            <p>{p.summary}</p>
+            {p.stat && <p class="spread-stat"><b class="gilt">{p.stat.value}<small>{p.stat.unit}</small></b><span>{p.stat.label}. <span class="muted">{p.stat.source}</span></span></p>}
+            {p.sealed && <p class="sealed-note">Sealed. {p.sealed}</p>}
+            <ul class="tags">{p.stack.slice(0, 5).map((t) => <li>{t}</li>)}</ul>
+            <p class="spread-meta muted">{[p.category, p.team ? '' : 'Solo project', p.dates].filter(Boolean).join(' · ')}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</Base>

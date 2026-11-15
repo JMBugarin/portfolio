@@ -1,0 +1,31 @@
+{
+  "measured_at": "2026-11-14T09:31:15.506Z",
+  "browser": "157.0.8103.78",
+  "scope": "Local Chrome, 1440×900, 5-second steady-state RAF sample; 4× CPU throttle. Hardware-specific, not a universal FPS guarantee.",
+  "results": [
+    {
+      "cpu_throttle": 1,
+      "fps": 60.003189538314246,
+      "p95_frame_ms": 16.799999999999955,
+      "frames": 301,
+      "rendered_pixel_ratio": 1,
+      "viewport": [
+        1440,
+        900
+      ],
+      "dpr": 1
+    },
+    {
+      "cpu_throttle": 4,
+      "fps": 60.00360021601296,
+      "p95_frame_ms": 16.700000000000728,
+      "frames": 300,
+      "rendered_pixel_ratio": 1,
+      "viewport": [
+        1440,
+        900
+      ],
+      "dpr": 1
+    }
+  ]
+}

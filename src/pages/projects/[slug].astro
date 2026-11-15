@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content'
+import CaseStudy from '../../components/CaseStudy.astro'
+import Base from '../../layouts/Base.astro'
+import { projects } from '../../lib/data'
+import { url } from '../../lib/data'
+export async function getStaticPaths() {
+  return (await getCollection('projects')).filter(e => !e.data.reserved).map(entry => ({
+    params: { slug: entry.data.projectId ?? entry.id }, props: { entry },
+  }))
+}
+const { entry } = Astro.props
+const project = projects.find(p => p.id === entry.data.projectId)
+const { Content } = await render(entry)
+---
+{project ? <CaseStudy project={project} seat={entry.data}>
+  <section class="case-preface" aria-label="The card's reading"><Content /></section>
+</CaseStudy> : <Base title={`${entry.data.title} · Joshua Bugarin`} description={entry.data.summary} current="work">
+  <article class="case markdown-case">
+    <header class="case-head"><div><a class="back" href={url('')}>Back to the table</a><p class="label">{entry.data.romanNumeral} · {entry.data.arcana}</p><h1>{entry.data.title}</h1><p class="lede">{entry.data.summary}</p><ul class="tags">{entry.data.stack.map(t => <li>{t}</li>)}</ul><div class="row">{entry.data.repoUrl && <a class="btn" href={entry.data.repoUrl}>Source on GitHub ↗</a>}{entry.data.liveUrl && <a class="btn" href={entry.data.liveUrl}>Live project ↗</a>}</div></div></header>
+    <div class="markdown-reading"><Content /></div>
+  </article>
+</Base>}
