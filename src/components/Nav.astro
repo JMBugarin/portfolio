@@ -1,0 +1,25 @@
+---
+import { href, site } from '../data/site'
+---
+
+<header class="site-nav">
+  <a class="brand" href={href()} aria-label={`${site.name}, home`}>
+    <span class="brand-mark" aria-hidden="true">JB</span>
+    <span class="brand-name">{site.name}</span>
+  </a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href={href('#projects')}>Projects</a>
+    <a href={href('#about')}>About</a>
+    <a href={href('#contact')}>Contact</a>
+  </nav>
+  <div class="view-toggle" role="group" aria-label="Page view">
+    <button type="button" data-set-view="mat" aria-pressed="false" title="Interactive drafting table (3D)">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13.5 13.5 2v11.5H2Zm6.5-2.5h2.5V8.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
+      <span>Drafting Table</span>
+    </button>
+    <button type="button" data-set-view="list" aria-pressed="true" title="Clean minimalist list (2D)">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+      <span>Clean List</span>
+    </button>
+  </div>
+</header>

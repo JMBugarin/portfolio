@@ -1,0 +1,127 @@
+---
+import { getCollection, render } from 'astro:content'
+import MediaFigure from '../../components/MediaFigure.astro'
+import { href, site } from '../../data/site'
+import Base from '../../layouts/Base.astro'
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects')
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }))
+}
+
+const { project } = Astro.props
+const { title, description, techStack, githubUrl, liveUrl, category, stat, problem, solution, next, results, struggles, media, mediaNote } = project.data
+const { Content } = await render(project)
+const demos = media.filter((m) => m.group === 'demo')
+const screens = media.filter((m) => m.group === 'interface')
+const resultFigs = media.filter((m) => m.group === 'results')
+const tilts = [-0.8, 0.6, -0.4, 0.9, -0.6, 0.5]
+---
+
+<Base title={`${title} · ${site.name}`} description={description}>
+  <article class="lay">
+    <p class="back"><a href={href('#projects')}><span aria-hidden="true">←</span> All projects</a></p>
+    <div class="tech-sheet">
+      <span class="tape mat-only" aria-hidden="true"></span>
+      {category && <p class="card-fig">{category}</p>}
+      <h1 class="card-title">{title}</h1>
+      <p class="card-desc">{description}</p>
+      {stat && <p class="stamp">{stat}</p>}
+      <ul class="chips" aria-label="Tech stack">
+        {techStack.map((tech) => <li>{tech}</li>)}
+      </ul>
+      <p class="card-links">
+        {githubUrl && <a href={githubUrl}>Source <span aria-hidden="true">↗</span></a>}
+        {liveUrl && <a href={liveUrl}>Live <span aria-hidden="true">↗</span></a>}
+      </p>
+
+      <section class="sheet-section" aria-labelledby="why-title">
+        <h2 id="why-title">Why I built it</h2>
+        <div class="why">
+          <div>
+            <h3>The problem</h3>
+            <p>{problem}</p>
+          </div>
+          <div>
+            <h3>How it fixes it</h3>
+            <p>{solution}</p>
+          </div>
+        </div>
+      </section>
+
+      {
+        demos.length > 0 && (
+          <section class="sheet-section" aria-labelledby="demo-title">
+            <h2 id="demo-title">{demos.length > 1 ? 'Demos' : 'Demo'}</h2>
+            <div class="shots shots-wide">
+              {demos.map((item, i) => <MediaFigure item={item} tilt={tilts[i % tilts.length]} />)}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        screens.length > 0 && (
+          <section class="sheet-section" aria-labelledby="ui-title">
+            <h2 id="ui-title">Interface</h2>
+            {screens.some((m) => m.height > m.width) && (
+              <div class="shots shots-tall">
+                {screens.filter((m) => m.height > m.width).map((item, i) => <MediaFigure item={item} tilt={tilts[(i + 2) % tilts.length]} />)}
+              </div>
+            )}
+            {screens.some((m) => m.height <= m.width) && (
+              <div class="shots shots-wide">
+                {screens.filter((m) => m.height <= m.width).map((item, i) => <MediaFigure item={item} tilt={tilts[(i + 1) % tilts.length]} />)}
+              </div>
+            )}
+          </section>
+        )
+      }
+
+      {mediaNote && media.length === 0 && <p class="media-note">{mediaNote}</p>}
+
+      {
+        (results.length > 0 || resultFigs.length > 0) && (
+          <section class="sheet-section results" aria-labelledby="results-title">
+            <h2 id="results-title">Results</h2>
+            {results.length > 0 && (
+              <ul>
+                {results.map((item) => <li>{item}</li>)}
+              </ul>
+            )}
+            {resultFigs.length > 0 && (
+              <div class="shots shots-wide">
+                {resultFigs.map((item, i) => <MediaFigure item={item} tilt={tilts[(i + 3) % tilts.length]} />)}
+              </div>
+            )}
+          </section>
+        )
+      }
+
+      <div class="prose"><Content /></div>
+
+      {
+        struggles.length > 0 && (
+          <section class="sheet-section struggles" aria-labelledby="struggles-title">
+            <h2 id="struggles-title">Where I struggled</h2>
+            <ol>
+              {struggles.map((item) => (
+                <li>
+                  <p class="issue">{item.issue}</p>
+                  <p class="fix"><b>How I fixed it.</b> {item.fix}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      <section class="sheet-section next" aria-labelledby="next-title">
+        <h2 id="next-title">Where it goes next</h2>
+        <ul>
+          {next.map((item) => <li>{item}</li>)}
+        </ul>
+      </section>
+    </div>
+  </article>
+</Base>

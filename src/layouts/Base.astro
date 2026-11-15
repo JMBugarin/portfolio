@@ -1,24 +1,25 @@
 ---
-import italicUrl from '@fontsource-variable/literata/files/literata-latin-wght-italic.woff2?url'
-import bodyUrl from '@fontsource-variable/literata/files/literata-latin-wght-normal.woff2?url'
-import displayUrl from '../assets/fonts/basteleur-bold.woff2?url'
-import sansUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
-import cinzelUrl from '@fontsource/cinzel/files/cinzel-latin-600-normal.woff2?url'
-import { ClientRouter } from 'astro:transitions'
+import '@fontsource-variable/ibm-plex-sans/wght.css'
+import '@fontsource/ibm-plex-mono/400.css'
+import '@fontsource/ibm-plex-mono/500.css'
+import '@fontsource/instrument-serif/400.css'
+import '@fontsource/instrument-serif/400-italic.css'
+import '@fontsource-variable/caveat/wght.css'
+import '@fontsource/gochi-hand/400.css'
 import '../styles/global.css'
-import ArcanaDefs from '../components/ArcanaDefs.astro'
-import Footer from '../components/Footer.astro'
-import Header from '../components/Header.astro'
-import type { PageId } from '../lib/data'
+import Nav from '../components/Nav.astro'
+import ResumeViewer from '../components/ResumeViewer.astro'
+import { href } from '../data/site'
 
-// `fog` is how thick the fog behind the page is: full on the home page, thinner behind long reading.
-interface Props { title: string; description: string; current?: PageId; fog?: 'full' | 'thin' }
-const { title, description, current, fog = 'thin' } = Astro.props
-const face = (family: string, src: string, weight: string, style = 'normal') => `@font-face{font-family:"${family}";src:url(${src}) format("woff2");font-weight:${weight};font-style:${style};font-display:swap}`
-const fonts = face('Basteleur', displayUrl, '700') + face('Literata', bodyUrl, '200 900') + face('Literata', italicUrl, '200 900', 'italic') + face('Inter', sansUrl, '100 900') + face('Cinzel', cinzelUrl, '600')
-const canonical = new URL(Astro.url.pathname, Astro.site)
-const icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%23131918'/%3E%3Cpath d='M6 24Q24 8 42 24Q24 40 6 24Z' fill='none' stroke='%23b4c1ad' stroke-width='3.6' stroke-linejoin='round'/%3E%3Ccircle cx='24' cy='24' r='7' fill='%23718778'/%3E%3C/svg%3E"
+interface Props {
+  title: string
+  description: string
+}
+const { title, description } = Astro.props
+const ticksX = Array.from({ length: 10 }, (_, i) => i)
+const ticksY = Array.from({ length: 40 }, (_, i) => i)
 ---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -26,30 +27,43 @@ const icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewB
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#e9e5dc" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonical} />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#131918" />
-    <ClientRouter fallback="swap" />
-    <link rel="icon" href={icon} />
-    <link rel="preload" href={bodyUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={sansUrl} as="font" type="font/woff2" crossorigin />
-    <style is:inline set:html={fonts}></style>
-    <script is:inline>document.documentElement.classList.add('js')</script>
+    <link rel="icon" type="image/svg+xml" href={href('favicon.svg')} />
+    <script is:inline>
+      ;(function () {
+        var view
+        try {
+          var asked = new URLSearchParams(location.search).get('view')
+          if (asked === 'list' || asked === 'mat') localStorage.setItem('view', asked)
+          view = localStorage.getItem('view')
+        } catch (e) {}
+        document.documentElement.dataset.view = view === 'list' ? 'list' : 'mat'
+        document.documentElement.classList.add('intro')
+      })()
+    </script>
+    <noscript><style>.view-toggle { display: none }</style></noscript>
   </head>
-  <body data-fog={fog}>
-    <a class="skip" href="#main">Skip to content</a>
-    <div class="mist-cover" data-mist-cover aria-hidden="true"><span class="sr-only">Opening the next chapter…</span></div>
-    <ArcanaDefs />
-    <Header current={current} />
-    <main id="main"><slot /></main>
-    <Footer />
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" class="drafting-container">
+      <div class="engineering-mat">
+        <div class="ruler ruler-x mat-only" aria-hidden="true">
+          {ticksX.map((i) => <span style={`left:${i * 160}px`}>{i * 5}</span>)}
+        </div>
+        <div class="ruler ruler-y mat-only" aria-hidden="true">
+          {ticksY.map((i) => <span style={`top:${i * 160}px`}>{i * 5}</span>)}
+        </div>
+        <p class="mat-print mat-only" aria-hidden="true">Self-healing cutting mat · 1 sq = 1 cm · A1</p>
+        <slot />
+      </div>
+    </main>
+    <ResumeViewer />
     <script>
-      import '../scripts/page.ts'
-      import '../scripts/transitions.ts'
+      import '../scripts/mat'
+      import '../scripts/drag'
     </script>
   </body>
 </html>

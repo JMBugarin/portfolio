@@ -1,0 +1,42 @@
+---
+import { href } from '../data/site'
+
+interface Props {
+  item: {
+    kind: 'video' | 'image'
+    src: string
+    poster?: string
+    alt: string
+    caption: string
+    width: number
+    height: number
+  }
+  tilt?: number
+}
+const { item, tilt = 0 } = Astro.props
+const tall = item.height > item.width
+---
+
+<figure class:list={['shot', tall && 'shot-tall']} style={`--r:${tilt}deg;--ratio:${item.width}/${item.height}`}>
+  {
+    item.kind === 'video' ? (
+      <video
+        controls
+        playsinline
+        preload="none"
+        poster={item.poster ? href(item.poster) : undefined}
+        width={item.width}
+        height={item.height}
+        aria-label={item.alt}
+      >
+        <source src={href(item.src)} type="video/mp4" />
+        <a href={href(item.src)}>Download the video</a>
+      </video>
+    ) : (
+      <a class="shot-zoom" href={href(item.src)} aria-label={`Open full size: ${item.alt}`}>
+        <img src={href(item.src)} alt={item.alt} width={item.width} height={item.height} decoding="async" />
+      </a>
+    )
+  }
+  <figcaption>{item.caption}</figcaption>
+</figure>
