@@ -6,7 +6,7 @@ const expectView = (page: import('@playwright/test').Page, view: 'mat' | 'list')
 test('opens on the drafting table with every project pinned', async ({ page }) => {
   await page.goto('/')
   await expectView(page, 'mat')
-  await expect(page.locator('.index-card')).toHaveCount(4)
+  await expect(page.locator('.index-card')).toHaveCount(5)
   await expect(page.getByRole('heading', { level: 1 })).toHaveAccessibleName('Joshua Bugarin')
   const transform = await page.locator('.engineering-mat').evaluate((el) => getComputedStyle(el).transform)
   expect(transform).toContain('matrix3d')
@@ -36,7 +36,7 @@ test('without scripts the page is the clean list', async ({ browser }) => {
   const page = await context.newPage()
   await page.goto('/')
   await expect(page.locator('.engineering-mat')).toHaveCSS('transform', 'none')
-  await expect(page.locator('.index-card')).toHaveCount(4)
+  await expect(page.locator('.index-card')).toHaveCount(5)
   await context.close()
 })
 
@@ -86,7 +86,7 @@ test('project sheets explain why, show media and list next steps', async ({ page
 })
 
 test('every project page has a problem, a fix and next steps', async ({ page }) => {
-  for (const id of ['pacer', 'tilelens', 'classmap', 'ethocal']) {
+  for (const id of ['pacer', 'tilelens', 'classmap', 'classmap-transit', 'ethocal']) {
     await page.goto(`/projects/${id}/`)
     await expect(page.getByRole('heading', { name: 'The problem' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'How it fixes it' })).toBeVisible()

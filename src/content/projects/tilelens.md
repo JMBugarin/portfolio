@@ -18,7 +18,8 @@ results:
   - "2.2 ms median search on mid-game 13x13 boards with a 204k-word list. That measures search only, not the whole screen-to-overlay loop."
   - "99.9 to 100% of squares read on synthetic boards across five themes, with zero silent errors."
   - "14 of 14 letters and values read on real Discord rack captures, uncalibrated (two racks)."
-  - "457 tests pass in the CI subset, and the fast search is checked against a brute-force solver on every run."
+  - "On a real Discord board as read from the screen, with two blanks in the rack, branch-and-bound pruning cut a search from 642 ms to 187 ms with identical results."
+  - "541 tests pass in macOS CI and 504 on Ubuntu. The fast search is checked against a brute-force solver on every run, and against a frozen copy of the old search in 59 equivalence tests."
 struggles:
   - issue: "It read things that weren't on the board. The chat sidebar, the letterbox bars and video tiles around Discord's activity share colors with the board, so stray squares were read as tiles and one bad read could ruin a search."
     fix: "I switched to color detection of the board itself. A square only counts if it matches an empty square's own color closely, since the background is almost the same. The board is the dense stretch of such squares, and a side only ends where the line beyond it is plain background. Anything outside that stretch, and outside the game's canvas, is never read."
@@ -28,6 +29,8 @@ struggles:
     fix: "A star on a square that still has its own color now counts as an empty square, and as a sign that no word has been played yet."
   - issue: "Scores came out wrong. Played tiles show the value they scored with premiums applied, and the game counts that number again when the tile is reused."
     fix: "TileLens reads a value per tile and falls back to the letter's own value when it can't. It matched the game's score on a real game (90 after three turns, and 11 for a play the plain values scored 8)."
+  - issue: "Searches on real boards were slow. On the grown Discord board with two blanks in the rack, one search took about 640 ms, the slowest step in the live loop."
+    fix: "I added branch and bound: for each row the search precomputes an overestimate of what the rest of a word could still score and skips branches that can't reach the current top three, plus a capped cache of cross-check letter sets. That board now takes 187 ms. A frozen copy of the old search and the brute-force solver pin the exact placements, scores and tie order."
 media:
   - kind: video
     group: demo
