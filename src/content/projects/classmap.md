@@ -1,26 +1,34 @@
 ---
 title: Classmap
-description: Your UC Santa Cruz class schedule on a campus map, including rooms the big map apps can't find.
-techStack: [Flutter, Dart, Riverpod, Swift, TypeScript, React, MapLibre]
+description: Your UC Santa Cruz class schedule on a campus map, with walking and bus directions to the door nearest each room.
+techStack: [Flutter, Dart, Riverpod, Swift, TypeScript, React, MapLibre, Tesseract.js]
 githubUrl: https://github.com/JMBugarin/ucsc-campus-router-v2
+liveUrl: https://jmbugarin.github.io/ucsc-campus-router-v2/
 category: Mobile and maps
 stat: 87 of 87 classrooms resolved
 order: 3
-problem: A schedule says "Baskin Engr 152" and nothing about where that is. UCSC's campus is steep and wooded, buildings go by abbreviations and nicknames, and the big map apps usually stop at the building name, if they find it at all. For a new student, finding the right room is a small cost that repeats every day.
-solution: The Flutter app imports a schedule (paste, an .ics file, or a photo read on the device by Apple's Vision framework), then shows each day's classes with the building, room and position resolved on the map. It forgives abbreviations and typos. All campus data ships inside the app, so search and the saved schedule work offline with no account. A separate React and MapLibre web map adds slope-aware walking routes you can compute in the browser.
+problem: A schedule says "Baskin Engr 152" and nothing about where that is. UCSC's campus is steep and wooded, buildings go by abbreviations and nicknames, and the big map apps usually stop at the building name, if they find it at all. For a new student, finding the right room, and the right bus, is a small cost that repeats every day.
+solution: Classmap imports a schedule (paste from MyUCSC, add by hand, a photo read on the device, or an .ics file in the app), then shows each day's classes with the building, room and floor where a published UCSC source confirms it. It forgives abbreviations and typos. The Flutter app keeps all campus data on the phone, works offline with no account, and hands the walk or the bus ride to the system maps app. The web map is live and carries the same class features, plus its own directions. Routes follow the real paths, account for slope and stairs, and end at the door nearest the room. Walk and bus are compared side by side with live METRO predictions from Classmap Transit, trips from off campus are planned by bus, and every residence hall is routable, with a saved Home.
 next:
-  - "Test on a physical iPhone and ship through TestFlight. It has only been run in the iOS Simulator so far."
-  - "Bring photo import to Android. It reads schedule screenshots on iOS only."
-  - "Add the department rooms and labs. Only the 87 official classrooms are first-class, and other rooms fall back to their building's main door."
-  - "Add room-specific doors and indoor floor guidance, instead of handing the last stretch to the system maps app."
-  - "Update campus data and term dates on a schedule, and cache map tiles so the map works offline too."
+  - "Walk the audit lists. No room has been checked on foot yet, so every room page says so, and room tips from students are checked before they show."
+  - "Try live directions and the Bus hand-off on real walks. Both are tested in browsers and simulators, not on a phone in motion."
+  - "Ship the iOS app beyond my own phone. The hosted web map is the public version for now."
+  - "Bring on-device photo import to the Android app, and test the web reader on real MyUCSC screenshots."
+  - "Add web push reminders, which need a push server, and update term dates and bus schedules each term automatically."
 results:
   - "87 of 87 official classrooms resolve to a building, room and position."
-  - "401 Flutter, 31 web and 55 data-pipeline tests pass."
-  - "The Dart search, schedule reader and calendar reader are pinned to recorded outputs from the original Python version."
+  - "Routes end at the door nearest the room, a median 11 m away. The main entrance it used before was a median 20 m away, and 22 of 87 rooms were 15 m or more off."
+  - "Routes follow the real path shapes: 2,592 of 2,594 walking edges matched. The old straight lines strayed up to 162 m from the path."
+  - "42 classroom floors confirmed from published UCSC floor plans and maps. The 45 rooms without a confirmed floor show none instead of a guess."
+  - "434 Flutter, 165 Vitest, 58 Playwright and 60 data-pipeline tests pass in CI, with iOS and Android builds."
+  - "The Dart search, schedule reader and calendar reader are pinned to recorded outputs from the original Python version, and the web map's TypeScript port is checked against the app's fixtures."
 struggles:
+  - issue: "Students told me class locations weren't accurate. The web map opened the building for a room search and routed to whichever door was quickest, and the app always walked you to the main entrance."
+    fix: "I measured it against the official room points, made all 87 classrooms searchable places on the web map, and ended every route at the one or two doors nearest the room, with the indoor stretch dotted. Room pages ask whether the route worked and take anonymous tips."
+  - issue: "Floors were wrong. McHenry 1340 showed as floor 3 because the floor came from the campus map's level and a room-number rule. It is one floor below the main entrance."
+    fix: "Floors now come only from a file of 42 rooms confirmed from published UCSC sources, each with its source. The room number and map level are no longer used."
   - issue: "The app depended on a server I hosted. A free host that sleeps made a first request fail or crawl, and with no connection there was no next class, no walk time and no route."
-    fix: "I ported the schedule and search logic to Dart, pinned it to recorded outputs from the Python original, and saved walk times on the phone. Today now works offline from saved walks, and the server is gone."
+    fix: "I ported the schedule and search logic to Dart, pinned it to recorded outputs from the Python original, and saved walk times on the phone. Today now works offline from saved walks, and that server is gone."
   - issue: "Photo import started as a cloud call. It needed an API key I couldn't test against, and it sent schedule images off the phone."
     fix: "I removed the route and the key and read the text on the device with Apple's Vision framework. A parser turns it into classes, and a review step lets you fix headings and letters it read wrongly."
   - issue: "The campus is steep, so a flat walking speed gave bad times. Stairs and slopes made some routes unreasonable."
@@ -95,6 +103,20 @@ media:
     height: 1957
   - kind: image
     group: interface
+    src: media/classmap/web-10-walk-or-bus-1600.webp
+    alt: The Classmap web map with directions from Kresge College to Jack Baskin Engineering 152, comparing an 8-minute walk with a Route 19 bus that arrives 2 minutes sooner.
+    caption: Walk and bus side by side, with the route ending at the door nearest the room. The live site, November 20, 2026.
+    width: 1600
+    height: 900
+  - kind: image
+    group: interface
+    src: media/classmap/web-09-room-door-1600.webp
+    alt: The Classmap web map showing Jack Baskin Engineering 152 with its closest mapped door, nearby rooms and a feedback prompt.
+    caption: A room page with the closest door, the building's other rooms, and a prompt for students to say whether it got them there.
+    width: 1600
+    height: 900
+  - kind: image
+    group: interface
     src: media/classmap/web-01-home-1600.webp
     alt: The Classmap web map with a search box, category filters and a list of popular places.
     caption: Web map home, with places grouped by category.
@@ -124,12 +146,12 @@ media:
 ---
 ## Decisions
 
-- **No server, no account.** Campus data ships in the app and the schedule stays on the phone.
-- **Hand off navigation.** The phone app passes the destination to the system maps app rather than rebuilding turn-by-turn directions.
-- **Be precise about verification.** I checked every official classroom name and tested in the simulator, and I say so instead of calling it done.
+- **No account.** Campus data ships with the app and schedules stay on the device. The only server is Classmap Transit for live buses, and everything else works without it.
+- **Hand off navigation on the phone.** The app passes the destination to the system maps app rather than rebuilding turn-by-turn directions. The web map, with no maps app to lean on, routes itself.
+- **Be precise about verification.** Every room page says "Not checked on foot yet" until someone walks it, and a floor is shown only when a published source confirms it.
 
 ## Limits
 
-- Tested in the iOS Simulator, not on a physical device.
-- Photo import is iOS only, and the app isn't on an app store.
+- The iOS app is tested in the Simulator and on my own iPhone, and isn't on an app store.
+- Photo import in the app is iOS only. The web map reads photos in the browser.
 - Not affiliated with UC Santa Cruz.
