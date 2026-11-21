@@ -17,7 +17,7 @@ let letterIndex = 0
 const nameWords = site.name.split(' ').map((word) => [...word].map((ch) => ({ ch, i: letterIndex++ })))
 ---
 
-<Base title={`${site.name} · ${site.role}`} description={`Computer science student at ${site.school}. I build small tools and test them: LLM cache eviction, on-screen vision, campus maps.`}>
+<Base title={`${site.name} · ${site.role}`} description={`Computer science student at ${site.school}. I build small tools and test them: LLM cache eviction, on-screen vision, campus maps and a live transit backend.`}>
   <section class="hero lay" id="top">
     <div class="hero-copy lay">
       <span class="avatar-pin mat-only" data-drag style="--r:-3deg" title="Drag me"><Avatar class="avatar" /></span>

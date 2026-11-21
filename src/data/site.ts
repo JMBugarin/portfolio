@@ -11,15 +11,16 @@ export const site = {
   tagline: 'Third-year computer science student at UC Santa Cruz.',
   about: [
     "I'm majoring in computer science with a computer engineering minor, and I graduate in June 2028. In coursework I've written a graph ADT in C with Kosaraju's algorithm, among other things.",
-    "Most of what I write is Python, Rust, C and Dart. I use Python with Pandas, NumPy and OpenCV for machine learning and computer vision, Rust and C for systems code, and Flutter and React Native for mobile apps. I like projects where I can measure the result, whether that's a cache hit ratio, a search time or how many tiles a vision pipeline reads correctly.",
+    "Most of what I write is Python, Rust, Go, C and Dart. I use Python with Pandas, NumPy and OpenCV for machine learning and computer vision, Rust and C for systems code, Go and PostgreSQL for backend services, and Flutter and React Native for mobile apps. I like projects where I can measure the result, whether that's a cache hit ratio, a search time, an API's p95 latency or how many tiles a vision pipeline reads correctly.",
   ],
   email: 'jbugarin85424@gmail.com',
   github: 'https://github.com/JMBugarin',
   linkedin: 'https://linkedin.com/in/Joshua-bugarin',
   resume: 'resume/Joshua-Bugarin-Resume.pdf',
   toolbox: [
-    { label: 'Languages', items: ['Python', 'Rust', 'C', 'C++', 'Dart', 'TypeScript'] },
+    { label: 'Languages', items: ['Python', 'Rust', 'Go', 'C', 'C++', 'Dart', 'TypeScript', 'SQL'] },
     { label: 'Frameworks', items: ['Flutter', 'React', 'React Native', 'Supabase', 'Astro', 'PySide6', 'OpenCV', 'LightGBM', 'MLX'] },
+    { label: 'Backend', items: ['PostgreSQL', 'Docker', 'AWS EC2', 'Caddy', 'Linux', 'k6'] },
     { label: 'Tools', items: ['Git', 'GitHub Actions', 'uv', 'Cargo', 'pytest', 'Playwright', 'Xcode', 'Blender'] },
   ],
   log: [
